@@ -2588,34 +2588,7 @@ body {
   transform: rotate(9deg);
 }
 
-@media (max-width: 1600px) {
-  .pi-section-decor {
-    opacity: 0.54;
-  }
-
-  .pi-folder-left,
-  .pi-localhost {
-    left: -210px;
-  }
-
-  .pi-notebook-left,
-  .pi-owl {
-    left: -82px;
-  }
-
-  .pi-folder-right,
-  .pi-notebook-right {
-    right: -218px;
-  }
-
-  .pi-cap,
-  .pi-mug,
-  .pi-brackets {
-    right: -86px;
-  }
-}
-
-@media (max-width: 1250px) {
+@media (max-width: 1840px) {
   .pi-section-decor {
     display: none;
   }
