@@ -190,7 +190,7 @@ a {
 
 .board-fragments {
   position: absolute;
-  inset: 58rem 0 auto;
+  inset: 100rem 0 auto;
   height: 800px;
   overflow: hidden;
   pointer-events: none;
@@ -457,12 +457,12 @@ a {
     display: block;
   }
 
-  .board-fragments-middle { inset: 117rem 0 auto; }
-  .board-fragments-bottom { inset: 181rem 0 auto; }
-  .board-fragments-deep-one { inset: 245rem 0 auto; }
-  .board-fragments-deep-two { inset: 309rem 0 auto; }
-  .board-fragments-deep-three { inset: 373rem 0 auto; }
-  .board-fragments-deep-four { inset: 437rem 0 auto; }
+  .board-fragments-middle { inset: 164rem 0 auto; }
+  .board-fragments-bottom { inset: 228rem 0 auto; }
+  .board-fragments-deep-one { inset: 292rem 0 auto; }
+  .board-fragments-deep-two { inset: 356rem 0 auto; }
+  .board-fragments-deep-three { inset: 420rem 0 auto; }
+  .board-fragments-deep-four { inset: 484rem 0 auto; }
 
   .board-fragments-extra .fragment-paper-one {
     left: calc((100vw - 1260px) / 2 - 345px);
@@ -1143,7 +1143,39 @@ a {
   transform: rotate(-6deg);
 }
 
-@media (max-width: 1420px) {
+.intro-zone .section-sketches {
+  position: relative;
+  inset: auto;
+  z-index: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 3.2rem;
+  height: 118px;
+  margin: 1rem 0 1.2rem;
+}
+
+.intro-zone .line-art,
+.intro-zone .about-sketches .sketch-notebook,
+.intro-zone .about-sketches .sketch-books {
+  position: relative;
+  left: auto;
+  right: auto;
+  top: auto;
+  width: 160px;
+  opacity: 0.44;
+  stroke-width: 3.2;
+}
+
+.intro-zone .about-sketches .sketch-notebook {
+  transform: rotate(-5deg);
+}
+
+.intro-zone .about-sketches .sketch-books {
+  transform: rotate(5deg);
+}
+
+@media (max-width: 1800px) {
   .intro-zone-decor {
     display: none;
   }
@@ -2639,7 +2671,7 @@ body {
   font-size: 5rem;
 }
 
-@media (max-width: 1500px) {
+@media (max-width: 1800px) {
   .board-fragments {
     display: none;
   }
