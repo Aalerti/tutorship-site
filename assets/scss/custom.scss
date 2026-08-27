@@ -2402,3 +2402,131 @@ body {
     font-size: 3rem;
   }
 }
+
+
+/* ============================================================
+   Мягкий фоновый декор пустых зон
+   ============================================================ */
+
+.ambient-decor {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.ambient-decor > * {
+  position: absolute;
+  display: block;
+}
+
+.ambient-line {
+  fill: none;
+  stroke: rgba(72, 51, 41, 0.14);
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 10px 22px rgba(77, 55, 43, 0.05));
+}
+
+.ambient-owl {
+  left: 3vw;
+  top: 34vh;
+  width: 170px;
+  transform: rotate(-7deg);
+}
+
+.ambient-cap {
+  right: 3vw;
+  top: 48vh;
+  width: 210px;
+  transform: rotate(7deg);
+}
+
+.ambient-laptop {
+  left: 4vw;
+  bottom: 7vh;
+  width: 230px;
+  transform: rotate(5deg);
+}
+
+.ambient-stamp {
+  min-height: 42px;
+  padding: 0.62rem 1rem;
+  border: 2px solid rgba(83, 60, 48, 0.13);
+  border-radius: 6px;
+  color: rgba(72, 51, 41, 0.22);
+  background: rgba(255, 250, 241, 0.18);
+  font-weight: 900;
+  line-height: 1;
+  text-transform: uppercase;
+  box-shadow: 0 12px 24px rgba(77, 55, 43, 0.05);
+}
+
+.stamp-localhost {
+  right: 4vw;
+  top: 26vh;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 1.1rem;
+  text-transform: none;
+  transform: rotate(-5deg);
+}
+
+.stamp-deadline {
+  left: 5vw;
+  top: 60vh;
+  font-size: 1rem;
+  transform: rotate(8deg);
+}
+
+.stamp-session {
+  right: 7vw;
+  bottom: 18vh;
+  font-size: 1.05rem;
+  transform: rotate(6deg);
+}
+
+.stamp-commit {
+  left: 7vw;
+  top: 18vh;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.96rem;
+  text-transform: none;
+  transform: rotate(-8deg);
+}
+
+.ambient-corner {
+  width: 74px;
+  height: 74px;
+  opacity: 0.2;
+}
+
+.ambient-corner::before,
+.ambient-corner::after {
+  content: "";
+  position: absolute;
+  border-radius: 999px;
+  background: rgba(72, 51, 41, 0.35);
+}
+
+.ambient-corner::before {
+  width: 100%;
+  height: 4px;
+}
+
+.ambient-corner::after {
+  width: 4px;
+  height: 100%;
+}
+
+.corner-left-top { left: 2.3vw; top: 12vh; }
+.corner-right-top { right: 2.4vw; top: 14vh; transform: rotate(90deg); }
+.corner-left-bottom { left: 2.8vw; bottom: 13vh; transform: rotate(-90deg); }
+.corner-right-bottom { right: 2.7vw; bottom: 10vh; transform: rotate(180deg); }
+
+@media (max-width: 1500px) {
+  .ambient-decor {
+    display: none;
+  }
+}
