@@ -6,7 +6,7 @@
   {{- $guides = where $ctx.Site.RegularPages "File.Dir" "in" (slice .) -}}
 {{- end -}}
 
-<section class="direction" id="{{ $g.code }}">
+<section class="direction{{ if $first }} direction-featured{{ end }}" id="{{ $g.code }}">
   <header class="direction-heading">
     <p class="direction-kicker">{{ $g.short }}</p>
     <h2 class="direction-title">{{ $g.full }}</h2>
@@ -66,6 +66,36 @@
       {{ end }}
     </div>
   </section>
+
+  {{ if $first }}
+    <div class="pi-section-decor" aria-hidden="true">
+      <span class="pi-decor-folder pi-folder-left"></span>
+      <span class="pi-decor-folder pi-folder-right"></span>
+      <span class="pi-decor-notebook pi-notebook-left"></span>
+      <span class="pi-decor-notebook pi-notebook-right"></span>
+      <span class="pi-decor-note pi-localhost">localhost:8080</span>
+      <svg class="pi-line-art pi-owl" viewBox="0 0 180 170" role="img">
+        <path d="M45 74c0-32 20-52 45-52s45 20 45 52v36c0 25-20 44-45 44s-45-19-45-44V74Z" />
+        <path d="M51 44 34 25l2 35M129 44l17-19-2 35" />
+        <path d="M65 78c0-10 8-18 18-18s18 8 18 18-8 18-18 18-18-8-18-18Z" />
+        <path d="M99 78c0-10 8-18 18-18s18 8 18 18-8 18-18 18-18-8-18-18Z" />
+        <path d="M88 97l-9 14h22l-9-14" />
+        <path d="M62 126c19 14 38 14 57 0M71 77h4M112 77h4" />
+      </svg>
+      <svg class="pi-line-art pi-cap" viewBox="0 0 220 140" role="img">
+        <path d="M20 56 110 18l90 38-90 38-90-38Z" />
+        <path d="M62 78v24c25 18 71 18 96 0V78" />
+        <path d="M176 66v38" />
+        <path d="M176 104c-9 11-9 18 0 28 9-10 9-17 0-28Z" />
+      </svg>
+      <svg class="pi-line-art pi-mug" viewBox="0 0 180 150" role="img">
+        <path d="M44 54h76v47c0 17-13 30-30 30H74c-17 0-30-13-30-30V54Z" />
+        <path d="M120 69h15c13 0 22 10 22 22s-9 22-22 22h-15" />
+        <path d="M67 33c8-9-8-14 0-24M92 33c8-9-8-14 0-24M116 33c8-9-8-14 0-24" />
+      </svg>
+      <span class="pi-decor-note pi-brackets">&lt;/&gt;</span>
+    </div>
+  {{ end }}
 
   <div class="direction-tutors">
     <h3 class="post-card-tutors-title">Материалы подготовили</h3>

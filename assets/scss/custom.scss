@@ -2402,3 +2402,221 @@ body {
     font-size: 3rem;
   }
 }
+
+
+/* ============================================================
+   Декор вокруг доски ПИ и тьюторов
+   ============================================================ */
+
+.direction-featured {
+  position: relative;
+  overflow: visible;
+}
+
+.direction-featured > .direction-heading,
+.direction-featured > .notice-board,
+.direction-featured > .direction-tutors {
+  position: relative;
+  z-index: 2;
+}
+
+.pi-section-decor {
+  position: absolute;
+  inset: 3.4rem 0 auto;
+  height: calc(100% - 1rem);
+  z-index: 1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.pi-section-decor > * {
+  position: absolute;
+  display: block;
+}
+
+.pi-decor-folder,
+.pi-decor-notebook,
+.pi-decor-note {
+  border: 1px solid rgba(111, 81, 63, 0.12);
+  border-radius: 8px;
+  box-shadow: 0 18px 42px rgba(77, 55, 43, 0.12);
+}
+
+.pi-decor-folder {
+  width: 230px;
+  height: 148px;
+  background: #ead3bf;
+}
+
+.pi-decor-folder::before {
+  content: "";
+  position: absolute;
+  left: 18px;
+  top: -24px;
+  width: 92px;
+  height: 34px;
+  border: 1px solid rgba(111, 81, 63, 0.12);
+  border-bottom: 0;
+  border-radius: 8px 8px 0 0;
+  background: inherit;
+}
+
+.pi-decor-folder::after,
+.pi-decor-notebook::after,
+.pi-decor-note::after {
+  content: "";
+  position: absolute;
+  top: -0.62rem;
+  left: 50%;
+  width: 68px;
+  height: 22px;
+  border-radius: 4px;
+  background: rgba(255, 247, 236, 0.58);
+  box-shadow: 0 7px 14px rgba(77, 55, 43, 0.06);
+  transform: translateX(-50%) rotate(-2deg);
+}
+
+.pi-folder-left {
+  left: calc((100vw - 1260px) / 2 - 305px);
+  top: 7.5rem;
+  transform: rotate(-7deg);
+}
+
+.pi-folder-right {
+  right: calc((100vw - 1260px) / 2 - 310px);
+  top: 28.5rem;
+  background: #dfe2cf;
+  transform: rotate(6deg);
+}
+
+.pi-decor-notebook {
+  width: 198px;
+  height: 238px;
+  background:
+    linear-gradient(90deg, rgba(111, 81, 63, 0.22) 0 2px, transparent 2px 18px),
+    linear-gradient(180deg, transparent 0 32px, rgba(111, 81, 63, 0.055) 33px, transparent 34px),
+    #fff7ec;
+  background-size: 18px 100%, 100% 34px, cover;
+}
+
+.pi-decor-notebook::before {
+  content: "";
+  position: absolute;
+  left: 34px;
+  top: 18px;
+  bottom: 18px;
+  width: 2px;
+  border-radius: 999px;
+  background: rgba(111, 81, 63, 0.18);
+}
+
+.pi-notebook-left {
+  left: calc((100vw - 1260px) / 2 - 178px);
+  top: 36rem;
+  transform: rotate(5deg);
+}
+
+.pi-notebook-right {
+  right: calc((100vw - 1260px) / 2 - 190px);
+  top: 4rem;
+  background-color: #f5dccf;
+  transform: rotate(-5deg);
+}
+
+.pi-line-art {
+  fill: none;
+  stroke: rgba(79, 57, 45, 0.5);
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 8px 18px rgba(77, 55, 43, 0.08));
+}
+
+.pi-owl {
+  left: calc((100vw - 1260px) / 2 - 140px);
+  top: 19rem;
+  width: 155px;
+  height: auto;
+  transform: rotate(-6deg);
+}
+
+.pi-cap {
+  right: calc((100vw - 1260px) / 2 - 160px);
+  top: 50rem;
+  width: 180px;
+  height: auto;
+  transform: rotate(7deg);
+}
+
+.pi-mug {
+  right: calc((100vw - 1260px) / 2 - 138px);
+  top: 69rem;
+  width: 142px;
+  height: auto;
+  transform: rotate(-4deg);
+}
+
+.pi-decor-note {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  min-height: 64px;
+  padding: 0.8rem 1rem;
+  background: #fffaf1;
+  color: rgba(62, 48, 43, 0.78);
+  font-weight: 900;
+  text-align: center;
+}
+
+.pi-localhost {
+  left: calc((100vw - 1260px) / 2 - 300px);
+  top: 67rem;
+  width: 210px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 1.22rem;
+  transform: rotate(4deg);
+}
+
+.pi-brackets {
+  right: calc((100vw - 1260px) / 2 - 112px);
+  top: 16rem;
+  width: 92px;
+  min-height: 76px;
+  background: #e7c4bc;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 1.65rem;
+  transform: rotate(9deg);
+}
+
+@media (max-width: 1600px) {
+  .pi-section-decor {
+    opacity: 0.54;
+  }
+
+  .pi-folder-left,
+  .pi-localhost {
+    left: -210px;
+  }
+
+  .pi-notebook-left,
+  .pi-owl {
+    left: -82px;
+  }
+
+  .pi-folder-right,
+  .pi-notebook-right {
+    right: -218px;
+  }
+
+  .pi-cap,
+  .pi-mug,
+  .pi-brackets {
+    right: -86px;
+  }
+}
+
+@media (max-width: 1250px) {
+  .pi-section-decor {
+    display: none;
+  }
+}
