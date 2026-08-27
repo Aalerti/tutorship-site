@@ -629,6 +629,7 @@ a {
 
 .guides-title,
 .about h2,
+.group-picker-title,
 .post-card-tutors-title,
 .year-selection-text,
 .container > h1 {
@@ -646,6 +647,7 @@ a {
 }
 
 .about h2,
+.group-picker-title,
 .year-selection-text {
   margin: 0.2rem 0 2rem;
   font-size: 3.2rem;
@@ -654,6 +656,7 @@ a {
 
 .guides-title::after,
 .about h2::after,
+.group-picker-title::after,
 .year-selection-text::after {
   content: "";
   display: flex;
@@ -1749,5 +1752,265 @@ a {
     transform: none;
     box-shadow: var(--shadow-l1);
     color: var(--tutorship-text);
+  }
+}
+
+
+/* ============================================================
+   Выбор направления (группы факультета)
+   ============================================================ */
+
+.group-picker {
+  position: relative;
+  z-index: 2;
+  width: calc(100% - 3rem);
+  max-width: 1260px;
+  margin: 4rem auto 4.5rem;
+  font-family: "Nunito", var(--base-font-family), -apple-system, sans-serif;
+}
+
+/* Доска ниже больше не подтягивается под hero — над ней теперь выбор группы */
+.group-picker ~ .notice-board {
+  margin-top: 0;
+}
+
+.group-picker-title {
+  margin: 0.2rem 0 0;
+}
+
+.group-cards {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 1.15rem;
+  margin-top: 3rem;
+}
+
+.group-card {
+  --pin: #c89a6c;
+  --pin-dark: #8f6b50;
+
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 212px;
+  padding: 2.9rem 1.2rem 1.5rem;
+  border: 1px solid rgba(111, 81, 63, 0.16);
+  border-radius: 8px;
+  background: #fff7ec;
+  box-shadow: 0 14px 30px rgba(77, 55, 43, 0.13);
+  text-align: center;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Кнопка-пин */
+.group-card::before {
+  content: "";
+  position: absolute;
+  top: 0.85rem;
+  left: 50%;
+  z-index: 2;
+  width: 16px;
+  height: 16px;
+  border-radius: 999px;
+  background: radial-gradient(circle at 35% 32%, #fffaf1 0 15%, var(--pin) 16% 58%, var(--pin-dark) 59% 100%);
+  box-shadow: 0 3px 8px rgba(77, 55, 43, 0.26);
+  transform: translateX(-50%);
+}
+
+.group-card:nth-child(1) {
+  --pin: #d9a7a0;
+  --pin-dark: #a8635c;
+  background: #fffaf1;
+  transform: rotate(-1.4deg);
+}
+
+.group-card:nth-child(2) {
+  --pin: #c89a6c;
+  --pin-dark: #8f6b50;
+  background: #f5dccf;
+  transform: rotate(1deg);
+}
+
+.group-card:nth-child(3) {
+  --pin: #a9b49b;
+  --pin-dark: #71805f;
+  background: #dfe2cf;
+  transform: rotate(-0.6deg);
+}
+
+.group-card:nth-child(4) {
+  --pin: #b9796f;
+  --pin-dark: #8a4f47;
+  background: #ead3bf;
+  transform: rotate(1.3deg);
+}
+
+.group-card:nth-child(5) {
+  --pin: #c89a6c;
+  --pin-dark: #6f513f;
+  background: #f6ead9;
+  transform: rotate(-1deg);
+}
+
+.group-card:nth-child(6) {
+  --pin: #a9b49b;
+  --pin-dark: #8f6b50;
+  background: #e7c4bc;
+  transform: rotate(0.7deg);
+}
+
+.group-card .group-short {
+  color: var(--tutorship-ink);
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: 3.4rem;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0;
+}
+
+.group-card .group-short::after {
+  content: "";
+  display: block;
+  width: 46px;
+  height: 4px;
+  margin: 0.85rem auto 0;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #d9a7a0, #ead3bf, #dfe2cf, #c89a6c);
+}
+
+.group-card .group-name {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1.1rem;
+  color: var(--tutorship-text-secondary);
+  font-size: 1.24rem;
+  font-weight: 800;
+  line-height: 1.4;
+  text-wrap: balance;
+}
+
+/* Доступное направление */
+.group-card:not(.soon) {
+  box-shadow: 0 14px 30px rgba(77, 55, 43, 0.13), inset 0 0 0 2px rgba(143, 107, 80, 0.2);
+}
+
+.group-card .group-action {
+  margin-top: 1.2rem;
+  color: var(--tutorship-secondary);
+  font-size: 1.12rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  transition: color 0.2s ease;
+}
+
+.group-card .group-action::after {
+  content: " →";
+  display: inline-block;
+  transition: transform 0.2s ease;
+}
+
+.group-card .group-link {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  border-radius: 8px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.group-card:not(.soon):hover {
+  transform: translateY(-6px) rotate(0deg);
+  box-shadow: 0 24px 58px rgba(77, 55, 43, 0.2), inset 0 0 0 2px rgba(143, 107, 80, 0.32);
+}
+
+.group-card:not(.soon):hover .group-action {
+  color: var(--tutorship-cocoa);
+}
+
+.group-card:not(.soon):hover .group-action::after {
+  transform: translateX(4px);
+}
+
+.group-card .group-link:focus-visible {
+  outline: 3px solid var(--tutorship-secondary);
+  outline-offset: 3px;
+}
+
+/* Направление в разработке */
+.group-card.soon {
+  opacity: 0.8;
+  cursor: default;
+}
+
+.group-card.soon .group-short,
+.group-card.soon .group-name {
+  color: var(--tutorship-text-secondary);
+}
+
+.group-card .group-stamp {
+  margin-top: 1.2rem;
+  padding: 0.4rem 1.05rem;
+  border: 2px solid rgba(160, 96, 88, 0.45);
+  border-radius: 6px;
+  color: rgba(160, 96, 88, 0.8);
+  font-size: 1.1rem;
+  font-weight: 900;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  transform: rotate(-6deg);
+}
+
+@media (max-width: 1250px) {
+  .group-cards {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.4rem 1.2rem;
+  }
+}
+
+@media (max-width: 900px) {
+  .group-picker {
+    margin: 3rem auto 3.5rem;
+  }
+
+  .group-cards {
+    margin-top: 2.4rem;
+  }
+
+  .group-card {
+    min-height: 190px;
+    padding: 2.6rem 1rem 1.3rem;
+  }
+
+  .group-card .group-short {
+    font-size: 2.9rem;
+  }
+}
+
+@media (max-width: 620px) {
+  .group-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .group-card {
+    min-height: 172px;
+  }
+
+  .group-card .group-short {
+    font-size: 2.5rem;
+  }
+
+  .group-card .group-name {
+    font-size: 1.14rem;
+  }
+}
+
+@media (hover: none) and (pointer: coarse) {
+  .group-card:not(.soon):hover {
+    transform: none;
+    box-shadow: 0 14px 30px rgba(77, 55, 43, 0.13), inset 0 0 0 2px rgba(143, 107, 80, 0.2);
   }
 }
