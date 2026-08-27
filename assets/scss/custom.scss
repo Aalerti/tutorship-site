@@ -2208,3 +2208,197 @@ a {
     font-size: 1.6rem;
   }
 }
+
+
+/* ============================================================
+   Zoom resilience
+   ============================================================ */
+
+html,
+body {
+  max-width: 100%;
+  overflow-x: clip;
+}
+
+.hero-inner,
+.section-heading,
+.board-main,
+.board-nav,
+.sgu-note,
+.group-card,
+.post-card,
+.board-empty,
+.post-card-tutor,
+.tutors-empty,
+.direction-heading {
+  min-width: 0;
+}
+
+.site-title,
+.site-tagline,
+.guides-title,
+.group-picker-title,
+.direction-title,
+.post-card-title,
+.post-card-content,
+.group-short,
+.group-name,
+.group-action,
+.group-stamp,
+.board-nav a,
+.sgu-note span,
+.faculty-groups span,
+.tutor-name,
+.board-empty-text,
+.board-empty-hint,
+.tutors-empty {
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+
+.group-cards {
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  align-items: stretch;
+}
+
+.group-card {
+  min-height: 190px;
+  padding-inline: 0.95rem;
+}
+
+.group-card .group-short {
+  font-size: 3rem;
+}
+
+.group-card .group-name {
+  font-size: 1.16rem;
+}
+
+.posts-cards {
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+}
+
+.post-card,
+.post-card:nth-child(1),
+.post-card:nth-child(2),
+.post-card:nth-child(3),
+.post-card:nth-child(4),
+.post-card:nth-child(5) {
+  grid-column: auto;
+  min-height: 198px;
+}
+
+.post-card .post-card-title {
+  font-size: 2.45rem;
+}
+
+.post-card .post-card-content {
+  font-size: 1.38rem;
+}
+
+.direction-title {
+  font-size: 4.8rem;
+}
+
+.notice-board {
+  grid-template-columns: minmax(190px, 240px) minmax(0, 1fr);
+}
+
+.board-nav a {
+  align-items: flex-start;
+  line-height: 1.18;
+}
+
+.faculty-groups span {
+  font-size: 7rem;
+}
+
+.faculty-groups span:nth-child(3) {
+  font-size: 5rem;
+}
+
+@media (max-width: 1500px) {
+  .board-fragments {
+    display: none;
+  }
+}
+
+@media (max-width: 1180px) {
+  .direction-title {
+    font-size: 3.8rem;
+  }
+
+  .faculty-groups span {
+    font-size: 5.2rem;
+  }
+
+  .faculty-groups span:nth-child(3) {
+    font-size: 3.7rem;
+  }
+}
+
+@media (max-width: 900px) {
+  .notice-board {
+    grid-template-columns: 1fr;
+  }
+
+  .board-side {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .board-nav {
+    grid-template-columns: repeat(auto-fit, minmax(135px, 1fr));
+  }
+
+  .group-cards,
+  .posts-cards,
+  .about .features,
+  .faculty-groups {
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  }
+
+  .guides-title,
+  .about h2,
+  .group-picker-title,
+  .post-card-tutors-title,
+  .year-selection-text,
+  .container > h1 {
+    font-size: 2.9rem;
+  }
+
+  .direction-title {
+    font-size: 3rem;
+  }
+}
+
+@media (max-width: 620px) {
+  .hero .site-title {
+    font-size: 3.15rem;
+  }
+
+  .hero .site-tagline {
+    font-size: 1.32rem;
+  }
+
+  .group-cards,
+  .posts-cards,
+  .about .features,
+  .faculty-groups {
+    grid-template-columns: 1fr;
+  }
+
+  .group-card,
+  .post-card,
+  .post-card:nth-child(1),
+  .post-card:nth-child(2),
+  .post-card:nth-child(3),
+  .post-card:nth-child(4),
+  .post-card:nth-child(5) {
+    transform: none;
+  }
+
+  .faculty-groups span,
+  .faculty-groups span:nth-child(3) {
+    font-size: 3rem;
+  }
+}
