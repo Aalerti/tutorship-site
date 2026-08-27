@@ -1769,9 +1769,8 @@ a {
   font-family: "Nunito", var(--base-font-family), -apple-system, sans-serif;
 }
 
-/* Доска ниже больше не подтягивается под hero — над ней теперь выбор группы */
-.group-picker ~ .notice-board {
-  margin-top: 0;
+.group-picker + .direction {
+  margin-top: 1rem;
 }
 
 .group-picker-title {
@@ -1922,8 +1921,13 @@ a {
   text-decoration: none;
 }
 
-.group-card:not(.soon):hover {
+.group-card:hover {
+  opacity: 1;
   transform: translateY(-6px) rotate(0deg);
+  box-shadow: 0 24px 58px rgba(77, 55, 43, 0.2);
+}
+
+.group-card:not(.soon):hover {
   box-shadow: 0 24px 58px rgba(77, 55, 43, 0.2), inset 0 0 0 2px rgba(143, 107, 80, 0.32);
 }
 
@@ -1940,10 +1944,9 @@ a {
   outline-offset: 3px;
 }
 
-/* Направление в разработке */
+/* Направление в разработке — карточка кликабельна, но помечена штампом */
 .group-card.soon {
-  opacity: 0.8;
-  cursor: default;
+  opacity: 0.88;
 }
 
 .group-card.soon .group-short,
@@ -2009,8 +2012,199 @@ a {
 }
 
 @media (hover: none) and (pointer: coarse) {
-  .group-card:not(.soon):hover {
+  .group-card:hover {
     transform: none;
+    box-shadow: 0 14px 30px rgba(77, 55, 43, 0.13);
+  }
+
+  .group-card:not(.soon):hover {
     box-shadow: 0 14px 30px rgba(77, 55, 43, 0.13), inset 0 0 0 2px rgba(143, 107, 80, 0.2);
+  }
+}
+
+
+/* ============================================================
+   Раздел направления: крупная подпись + доска + тьюторы
+   ============================================================ */
+
+.direction {
+  position: relative;
+  z-index: 2;
+  scroll-margin-top: 2rem;
+  margin-bottom: 5.5rem;
+  font-family: "Nunito", var(--base-font-family), -apple-system, sans-serif;
+}
+
+.direction-heading {
+  width: calc(100% - 3rem);
+  max-width: 1260px;
+  margin: 0 auto 2.2rem;
+  text-align: center;
+}
+
+.direction-kicker {
+  display: inline-block;
+  margin: 0 0 1.1rem;
+  padding: 0.42rem 1.3rem;
+  border: 1px solid rgba(111, 81, 63, 0.16);
+  border-radius: 6px;
+  background: #fffaf1;
+  color: var(--tutorship-cocoa);
+  font-size: 1.25rem;
+  font-weight: 900;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  box-shadow: 0 8px 20px rgba(77, 55, 43, 0.12);
+  transform: rotate(-1.6deg);
+}
+
+.direction-title {
+  margin: 0;
+  color: var(--tutorship-ink);
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: clamp(3rem, 4.6vw, 6rem);
+  font-weight: 700;
+  line-height: 1.02;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  text-wrap: balance;
+  text-shadow: 0 3px 16px rgba(62, 48, 43, 0.14);
+}
+
+.direction-title::after {
+  content: "";
+  display: block;
+  width: 148px;
+  height: 5px;
+  margin: 1.4rem auto 0;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #d9a7a0, #ead3bf, #dfe2cf, #c89a6c);
+}
+
+/* Доска внутри раздела больше не подтягивается под шапку */
+.direction .notice-board {
+  margin: 0 auto 2.8rem;
+}
+
+/* Доска без боковых заметок — во всю ширину */
+.notice-board.board-solo {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+/* --- Пустая доска направления --- */
+
+.board-empty {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 580px;
+  margin: 1.4rem auto;
+  padding: 3.4rem 2rem 2.6rem;
+  border: 1px solid rgba(111, 81, 63, 0.16);
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, transparent 0 38px, rgba(111, 81, 63, 0.055) 39px, transparent 40px),
+    #fffaf1;
+  background-size: 100% 40px, cover;
+  box-shadow: 0 14px 30px rgba(77, 55, 43, 0.13);
+  text-align: center;
+  transform: rotate(-0.7deg);
+}
+
+.board-empty::before {
+  content: "";
+  position: absolute;
+  top: 0.72rem;
+  left: 50%;
+  z-index: 2;
+  width: 15px;
+  height: 15px;
+  border-radius: 999px;
+  background: radial-gradient(circle at 35% 35%, #fffaf1 0 14%, #c89a6c 15% 58%, #8f6b50 59% 100%);
+  box-shadow: 0 2px 7px rgba(77, 55, 43, 0.22);
+  transform: translateX(-50%);
+}
+
+.board-empty::after {
+  content: "";
+  position: absolute;
+  top: -0.72rem;
+  left: 50%;
+  width: 82px;
+  height: 26px;
+  border-radius: 4px;
+  background: rgba(255, 247, 236, 0.62);
+  box-shadow: 0 7px 16px rgba(77, 55, 43, 0.08);
+  transform: translateX(-50%) rotate(-2deg);
+}
+
+.board-empty-stamp {
+  margin-bottom: 1.5rem;
+  padding: 0.5rem 1.6rem;
+  border: 2px solid rgba(160, 96, 88, 0.45);
+  border-radius: 6px;
+  color: rgba(160, 96, 88, 0.8);
+  font-size: 1.35rem;
+  font-weight: 900;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  transform: rotate(-5deg);
+}
+
+.board-empty-text {
+  margin: 0 0 0.7rem;
+  color: var(--tutorship-ink);
+  font-size: 1.8rem;
+  font-weight: 900;
+  line-height: 1.35;
+}
+
+.board-empty-hint {
+  margin: 0;
+  max-width: 420px;
+  color: var(--tutorship-text-secondary);
+  font-size: 1.4rem;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+/* --- Тьюторы направления --- */
+
+.direction-tutors {
+  width: calc(100% - 3rem);
+  max-width: 1180px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.tutors-empty {
+  max-width: 620px;
+  margin: 0 auto;
+  padding: 1.6rem 1.8rem;
+  border: 1px dashed rgba(111, 81, 63, 0.3);
+  border-radius: 8px;
+  background: rgba(255, 250, 241, 0.5);
+  color: var(--tutorship-text-secondary);
+  font-size: 1.45rem;
+  font-weight: 800;
+}
+
+@media (max-width: 900px) {
+  .direction {
+    margin-bottom: 4rem;
+  }
+
+  .direction-title::after {
+    width: 108px;
+    margin-top: 1.1rem;
+  }
+
+  .board-empty {
+    padding: 3rem 1.5rem 2.2rem;
+  }
+
+  .board-empty-text {
+    font-size: 1.6rem;
   }
 }

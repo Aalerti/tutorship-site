@@ -1,0 +1,85 @@
+{{- $g := .group -}}
+{{- $ctx := .ctx -}}
+{{- $first := .first -}}
+{{- $guides := slice -}}
+{{- with $g.contentDir -}}
+  {{- $guides = where $ctx.Site.RegularPages "File.Dir" "in" (slice .) -}}
+{{- end -}}
+
+<section class="direction" id="{{ $g.code }}">
+  <header class="direction-heading">
+    <p class="direction-kicker">{{ $g.short }}</p>
+    <h2 class="direction-title">{{ $g.full }}</h2>
+  </header>
+
+  <section class="notice-board{{ if not $first }} board-solo{{ end }}">
+    {{ if $first }}
+      <div class="board-side">
+        <nav class="board-nav" aria-label="Маршрут по сайту">
+          <p class="menu-kicker">Куда идём</p>
+          <a href="#groups"><span>01</span>Направления</a>
+          <a href="#inside"><span>02</span>Что внутри</a>
+          <a href="#archive"><span>03</span>Прошлый год</a>
+        </nav>
+
+        <a class="sgu-note" href="https://www.sgu.ru/" target="_blank" rel="noopener noreferrer">
+          <span class="sgu-note-pin" aria-hidden="true"></span>
+          <img src="/icons/sgu.jpg" alt="СГУ">
+          <span>Новый сайт СГУ</span>
+        </a>
+      </div>
+    {{ end }}
+
+    <div class="board-main">
+      {{ if $guides }}
+        <div class="posts-cards board-cards">
+          {{ $now := now }}
+          {{ range sort $guides "Date" "asc" }}
+            {{ $release := .Date }}
+            {{ $locked := $release.After $now }}
+            <div class="post-card{{ if $locked }} locked{{ end }}">
+              {{ if not $locked }}
+                <a href="{{ .RelPermalink }}" class="card-link"></a>
+              {{ end }}
+              <div class="post-card-title">{{ .Title }}</div>
+              <div class="post-card-content">
+                {{ with .Params.description }}{{ . }}{{ end }}
+              </div>
+              <div class="post-card-content">
+                {{ $release.Format "02-01-2006" }}
+              </div>
+              {{ if $locked }}
+                <div class="lock-overlay">
+                  <span class="icon-lock" aria-hidden="true">🔒</span>
+                  <div class="lock-text">Доступно с {{ $release.Format "02-01-2006" }}</div>
+                </div>
+              {{ end }}
+            </div>
+          {{ end }}
+        </div>
+      {{ else }}
+        <div class="board-empty">
+          <span class="board-empty-stamp">Скоро</span>
+          <p class="board-empty-text">Гайды для этого направления ещё пишутся.</p>
+          <p class="board-empty-hint">Учишься здесь и хочешь помочь собрать материалы? Напиши нам — доска ждёт своих авторов.</p>
+        </div>
+      {{ end }}
+    </div>
+  </section>
+
+  <div class="direction-tutors">
+    <h3 class="post-card-tutors-title">Материалы подготовили</h3>
+    {{ with $g.tutors }}
+      <div class="post-card-tutors featured-tutors">
+        {{ range . }}
+          <div class="post-card-tutor">
+            <h2 class="tutor-name">{{ .first }}<br>{{ .last }}</h2>
+            <span class="photo {{ .photo }}"></span>
+          </div>
+        {{ end }}
+      </div>
+    {{ else }}
+      <p class="tutors-empty">Тьюторы этого направления пока не назначены.</p>
+    {{ end }}
+  </div>
+</section>

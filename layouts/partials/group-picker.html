@@ -6,15 +6,12 @@
 
   <div class="group-cards">
     {{ range .Site.Data.groups }}
-      {{ $ready := and .ready .url }}
       {{ $full := default .name .full }}
-      <div class="group-card{{ if not $ready }} soon{{ end }}" title="{{ $full }}">
-        {{ if $ready }}
-          <a class="group-link" href="{{ .url }}" aria-label="{{ $full }} — открыть гайды"></a>
-        {{ end }}
+      <div class="group-card{{ if not .ready }} soon{{ end }}" title="{{ $full }}">
+        <a class="group-link" href="#{{ .code }}" aria-label="{{ $full }} — перейти к доске"></a>
         <span class="group-short">{{ .short }}</span>
         <span class="group-name">{{ .name }}</span>
-        {{ if $ready }}
+        {{ if .ready }}
           <span class="group-action">Открыть гайды</span>
         {{ else }}
           <span class="group-stamp">Скоро</span>

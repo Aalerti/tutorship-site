@@ -30,57 +30,9 @@
   </span>
 </div>
 
-<section class="notice-board" id="guides-this-year">
-  <div class="board-side">
-    <nav class="board-nav" aria-label="Маршрут по сайту">
-      <p class="menu-kicker">Куда идём</p>
-      <a href="#guides-this-year"><span>01</span>Гайды этого года</a>
-      <a href="#inside"><span>02</span>Что внутри</a>
-      <a href="#tutors"><span>03</span>Кто готовил</a>
-      <a href="#archive"><span>04</span>Прошлый год</a>
-    </nav>
-
-    <a class="sgu-note" href="https://www.sgu.ru/" target="_blank" rel="noopener noreferrer">
-      <span class="sgu-note-pin" aria-hidden="true"></span>
-      <img src="/icons/sgu.jpg" alt="СГУ">
-      <span>Новый сайт СГУ</span>
-    </a>
-  </div>
-
-  <div class="board-main">
-    <div class="section-heading board-heading">
-      <p class="section-kicker">Свежие листы на доске</p>
-      <h1 class="guides-title">Гайды этого года</h1>
-    </div>
-
-    <div class="posts-cards board-cards">
-      {{ $now := now }}
-      {{ $currentGuides := where .Site.RegularPages "File.Dir" "in" (slice "posts/2025/") }}
-      {{ range sort $currentGuides "Date" "asc" }}
-        {{ $release := .Date }}
-        {{ $locked := $release.After $now }}
-        <div class="post-card{{ if $locked }} locked{{ end }}">
-          {{ if not $locked }}
-            <a href="{{ .RelPermalink }}" class="card-link"></a>
-          {{ end }}
-          <div class="post-card-title">{{ .Title }}</div>
-          <div class="post-card-content">
-            {{ with .Params.description }}{{ . }}{{ end }}
-          </div>
-          <div class="post-card-content">
-            {{ $release.Format "02-01-2006" }}
-          </div>
-          {{ if $locked }}
-            <div class="lock-overlay">
-              <span class="icon-lock" aria-hidden="true">🔒</span>
-              <div class="lock-text">Доступно с {{ $release.Format "02-01-2006" }}</div>
-            </div>
-          {{ end }}
-        </div>
-      {{ end }}
-    </div>
-  </div>
-</section>
+{{ range $i, $g := .Site.Data.groups }}
+  {{ partial "direction-board.html" (dict "group" $g "ctx" $ "first" (eq $i 0)) }}
+{{ end }}
 
 <div class="content-wrapper">
   <section class="about" id="inside">
@@ -121,43 +73,6 @@
   <span>Культмасс</span>
   <span>Студ клубы разработки</span>
   <span>ЦОПП</span>
-</section>
-
-<section class="tutors-section" id="tutors">
-  <div class="section-heading">
-    <p class="section-kicker">Подписи авторов</p>
-    <h1 class="post-card-tutors-title">Материалы подготовили</h1>
-  </div>
-  <div class="section-sketches tutors-sketches" aria-hidden="true">
-    <svg class="line-art sketch-laptop" viewBox="0 0 240 170" role="img">
-      <path d="M44 38h142c9 0 16 7 16 16v72H28V54c0-9 7-16 16-16Z" />
-      <path d="M53 52h124c5 0 9 4 9 9v52H44V61c0-5 4-9 9-9Z" />
-      <path d="M20 126h190l16 24H6l14-24Z" />
-      <path d="M88 135h58l8 8H80l8-8Z" />
-      <path d="M67 70h34M67 86h62M67 102h44" />
-      <path d="M147 70h18M174 70h10M147 87h37" />
-      <path d="M36 150h158" />
-    </svg>
-    <svg class="line-art sketch-symbols" viewBox="0 0 230 160" role="img">
-      <path d="M38 68c23-28 58-27 77-2s54 25 78-3" />
-      <path d="M56 44c20 10 18 42-4 54M177 42c-20 10-18 42 4 54" />
-      <path d="M103 38h44M125 38v74M107 112h36" />
-      <path d="M52 118h42l8 14H60l-8-14Z" />
-      <path d="M134 116h44v26h-44zM144 126h24M144 134h16" />
-      <path d="M75 31c12-12 29-9 36 4M142 33c8-11 27-13 40 0" />
-    </svg>
-  </div>
-  <div class="post-card-tutors featured-tutors">
-    <div class="post-card-tutor">
-      <h2 class="tutor-name">Максим<br>Бретт</h2>
-      <span class="photo maxim"></span>
-    </div>
-
-    <div class="post-card-tutor">
-      <h2 class="tutor-name">Илья<br>Зуев</h2>
-      <span class="photo ilya"></span>
-    </div>
-  </div>
 </section>
 
 <section class="years-grid" id="archive">
