@@ -40,6 +40,67 @@
 
 {{ partial "group-picker.html" . }}
 
+<section class="intro-zone" aria-label="Что внутри курса">
+  <div class="intro-zone-decor" aria-hidden="true">
+    <span class="intro-paper intro-folder-left"></span>
+    <span class="intro-paper intro-folder-right"></span>
+    <span class="intro-paper intro-note-left"></span>
+    <span class="intro-paper intro-note-right"></span>
+    <svg class="intro-line-art intro-pencil" viewBox="0 0 220 130">
+      <path d="M34 96 150 30l32 32L66 128 28 134l6-38Z" />
+      <path d="M150 30l18-18c7-7 18-7 25 0s7 18 0 25l-11 11" />
+      <path d="M48 92l26 26M72 74l28 28M126 44l32 32" />
+    </svg>
+    <svg class="intro-line-art intro-calendar" viewBox="0 0 210 160">
+      <path d="M34 34h142c10 0 18 8 18 18v82c0 10-8 18-18 18H34c-10 0-18-8-18-18V52c0-10 8-18 18-18Z" />
+      <path d="M16 68h178M58 20v28M152 20v28" />
+      <path d="M54 92h20M96 92h20M138 92h20M54 120h20M96 120h20M138 120h20" />
+    </svg>
+  </div>
+<div class="content-wrapper">
+  <section class="about" id="inside">
+    <div class="section-heading">
+      <p class="section-kicker">На полях</p>
+      <h2>Что внутри?</h2>
+    </div>
+    <div class="section-sketches about-sketches" aria-hidden="true">
+      <svg class="line-art sketch-notebook" viewBox="0 0 220 150" role="img">
+        <path d="M24 28c34-10 58-4 84 10v92c-27-15-53-20-84-9V28Z" />
+        <path d="M196 28c-34-10-58-4-84 10v92c27-15 53-20 84-9V28Z" />
+        <path d="M110 38v92" />
+        <path d="M42 52c18-4 34-2 50 5M42 72c18-4 34-2 50 5M42 92c16-3 30-2 43 4" />
+        <path d="M132 54c16-5 31-6 48-2M132 75c18-5 33-5 48 0M132 96c13-3 26-3 40 1" />
+        <path d="M30 124c31-8 55-2 80 12 25-14 49-20 80-12" />
+      </svg>
+      <svg class="line-art sketch-books" viewBox="0 0 220 160" role="img">
+        <path d="M34 112h105c8 0 14 6 14 14v10H34v-24Z" />
+        <path d="M48 86h110c8 0 14 6 14 14v12H48V86Z" />
+        <path d="M62 60h98c8 0 14 6 14 14v12H62V60Z" />
+        <path d="M48 99h96M62 73h83M34 125h86" />
+        <path d="M158 116h32c0 16-7 26-20 26s-20-10-20-26h8Z" />
+        <path d="M190 121c18 2 17 18 0 20" />
+        <path d="M164 52c6-10-7-13-1-24M181 52c6-10-7-13-1-24" />
+      </svg>
+    </div>
+    <ul class="features">
+      <li>Обзоры учебных дисциплин</li>
+      <li>Материалы для экзаменов и зачётов</li>
+      <li>Советы старших курсов</li>
+      <li>Подборки полезных ссылок</li>
+    </ul>
+  </section>
+</div>
+
+
+<section class="faculty-groups" aria-label="Группы факультета">
+  <span>Студ совет</span>
+  <span>Культмасс</span>
+  <span>Студ клубы разработки</span>
+  <span>ЦОПП</span>
+</section>
+
+</section>
+
 <div class="board-fragments" aria-hidden="true">
   <span class="fragment fragment-left fragment-paper-one"></span>
   <span class="fragment fragment-left fragment-paper-two"></span>
@@ -130,47 +191,6 @@
 {{ range $i, $g := .Site.Data.groups }}
   {{ partial "direction-board.html" (dict "group" $g "ctx" $ "first" (eq $i 0)) }}
 {{ end }}
-
-<div class="content-wrapper">
-  <section class="about" id="inside">
-    <div class="section-heading">
-      <p class="section-kicker">На полях</p>
-      <h2>Что внутри?</h2>
-    </div>
-    <div class="section-sketches about-sketches" aria-hidden="true">
-      <svg class="line-art sketch-notebook" viewBox="0 0 220 150" role="img">
-        <path d="M24 28c34-10 58-4 84 10v92c-27-15-53-20-84-9V28Z" />
-        <path d="M196 28c-34-10-58-4-84 10v92c27-15 53-20 84-9V28Z" />
-        <path d="M110 38v92" />
-        <path d="M42 52c18-4 34-2 50 5M42 72c18-4 34-2 50 5M42 92c16-3 30-2 43 4" />
-        <path d="M132 54c16-5 31-6 48-2M132 75c18-5 33-5 48 0M132 96c13-3 26-3 40 1" />
-        <path d="M30 124c31-8 55-2 80 12 25-14 49-20 80-12" />
-      </svg>
-      <svg class="line-art sketch-books" viewBox="0 0 220 160" role="img">
-        <path d="M34 112h105c8 0 14 6 14 14v10H34v-24Z" />
-        <path d="M48 86h110c8 0 14 6 14 14v12H48V86Z" />
-        <path d="M62 60h98c8 0 14 6 14 14v12H62V60Z" />
-        <path d="M48 99h96M62 73h83M34 125h86" />
-        <path d="M158 116h32c0 16-7 26-20 26s-20-10-20-26h8Z" />
-        <path d="M190 121c18 2 17 18 0 20" />
-        <path d="M164 52c6-10-7-13-1-24M181 52c6-10-7-13-1-24" />
-      </svg>
-    </div>
-    <ul class="features">
-      <li>Обзоры учебных дисциплин</li>
-      <li>Материалы для экзаменов и зачётов</li>
-      <li>Советы старших курсов</li>
-      <li>Подборки полезных ссылок</li>
-    </ul>
-  </section>
-</div>
-
-<section class="faculty-groups" aria-label="Группы факультета">
-  <span>Студ совет</span>
-  <span>Культмасс</span>
-  <span>Студ клубы разработки</span>
-  <span>ЦОПП</span>
-</section>
 
 <section class="years-grid" id="archive">
   <a class="year-card" href="/posts/2025/">
