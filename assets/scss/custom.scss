@@ -1017,8 +1017,8 @@ a {
   position: relative;
   z-index: 2;
   width: 100%;
-  margin: 0 auto 1.2rem;
-  padding: 0.6rem 0 0;
+  margin: 0 auto 0.2rem;
+  padding: 0.4rem 0 0;
   overflow: visible;
 }
 
@@ -1113,8 +1113,8 @@ a {
   gap: 1.8rem 2.4rem;
   width: calc(100% - 3rem);
   max-width: 1180px;
-  margin: -0.4rem auto 1.2rem;
-  padding: 0.4rem 0;
+  margin: -0.4rem auto 0.2rem;
+  padding: 0.2rem 0;
 }
 
 .faculty-groups span {
@@ -1122,10 +1122,10 @@ a {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 108px;
+  min-height: 74px;
   color: rgba(62, 48, 43, 0.82);
   font-family: "Marck Script", "Cormorant Garamond", Georgia, serif;
-  font-size: 7rem;
+  font-size: 5.4rem;
   line-height: 0.9;
   text-align: center;
   text-shadow: 0 13px 30px rgba(77, 55, 43, 0.13);
@@ -1139,7 +1139,7 @@ a {
 
 .faculty-groups span:nth-child(3) {
   color: rgba(83, 91, 72, 0.82);
-  font-size: 5.2rem;
+  font-size: 4.2rem;
   line-height: 0.88;
   transform: rotate(-1.2deg);
 }
@@ -2281,7 +2281,7 @@ a {
 .direction-heading {
   width: calc(100% - 3rem);
   max-width: 1260px;
-  margin: 0 auto 2.2rem;
+  margin: 0 auto 1rem;
   text-align: center;
 }
 
@@ -2319,7 +2319,7 @@ a {
   display: block;
   width: 148px;
   height: 5px;
-  margin: 1.4rem auto 0;
+  margin: 0.8rem auto 0;
   border-radius: 999px;
   background: linear-gradient(90deg, #d9a7a0, #ead3bf, #dfe2cf, #c89a6c);
 }
@@ -2675,9 +2675,9 @@ body {
   display: block;
   border: 1px solid rgba(111, 81, 63, 0.12);
   border-radius: 8px;
-  opacity: 0.24;
-  filter: saturate(0.72);
-  box-shadow: 0 14px 28px rgba(77, 55, 43, 0.045);
+  opacity: 0.18;
+  filter: saturate(0.62);
+  box-shadow: 0 10px 22px rgba(77, 55, 43, 0.035);
 }
 
 .bg-folder {
@@ -2853,7 +2853,7 @@ body {
 }
 
 @media (max-width: 900px) {
-  .page-paper-backdrop { opacity: 0.28; }
+  .page-paper-backdrop { opacity: 0.22; }
 }
 
 .admin-panel {
