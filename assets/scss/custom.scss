@@ -2653,7 +2653,11 @@ body {
 
 .page-paper-backdrop {
   position: absolute;
-  inset: 0;
+  top: 0;
+  right: 0;
+  bottom: auto;
+  left: 0;
+  height: 720rem;
   min-height: 100%;
   z-index: 0;
   pointer-events: none;
@@ -2845,8 +2849,9 @@ body {
 .page-paper-backdrop::after {
   content: "";
   position: absolute;
-  top: 8rem;
-  bottom: 4rem;
+  top: 0;
+  bottom: auto;
+  height: 720rem;
   left: clamp(1.2rem, 7vw, 10rem);
   right: clamp(1.2rem, 7vw, 10rem);
   pointer-events: none;
@@ -2854,8 +2859,8 @@ body {
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='130' height='900' viewBox='0 0 130 900' fill='none'%3E%3Cpath d='M64 6C16 58 109 106 64 157C20 207 108 258 64 309C18 361 111 410 64 462C17 514 109 562 64 615C20 667 108 715 64 768C28 810 84 844 64 894' stroke='%238f5f4a' stroke-width='8' stroke-linecap='round' opacity='.82'/%3E%3Cpath d='M64 88C42 95 29 112 26 136M65 88C91 91 106 108 111 132M64 246C37 250 23 266 18 290M64 246C92 250 110 266 118 292M64 404C43 415 31 430 28 452M64 404C89 412 104 429 111 455M64 562C37 569 22 588 18 614M64 562C93 568 111 586 118 612M64 724C42 735 28 752 25 774M64 724C89 731 105 748 112 773' stroke='%23d18b79' stroke-width='6' stroke-linecap='round' opacity='.76'/%3E%3Ccircle cx='64' cy='88' r='10' fill='%23e2b079' opacity='.88'/%3E%3Ccircle cx='64' cy='246' r='10' fill='%23d9a7a0' opacity='.82'/%3E%3Ccircle cx='64' cy='404' r='10' fill='%23dfe2cf' opacity='.82'/%3E%3Ccircle cx='64' cy='562' r='10' fill='%23e2b079' opacity='.86'/%3E%3Ccircle cx='64' cy='724' r='10' fill='%23d9a7a0' opacity='.82'/%3E%3C/svg%3E"),
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='130' height='900' viewBox='0 0 130 900' fill='none'%3E%3Cpath d='M66 7C114 61 20 107 66 160C112 211 19 263 66 316C112 368 20 416 66 470C112 522 20 572 66 625C111 677 21 723 66 779C101 823 45 849 66 894' stroke='%237b5a45' stroke-width='8' stroke-linecap='round' opacity='.82'/%3E%3Cpath d='M66 94C88 101 102 118 105 141M66 94C41 97 25 115 19 139M66 252C93 256 108 273 113 298M66 252C38 256 20 273 13 299M66 411C87 421 100 437 103 459M66 411C41 419 25 436 19 462M66 570C93 577 108 595 113 621M66 570C37 576 19 594 12 620M66 730C88 741 102 759 105 781M66 730C41 737 25 754 18 780' stroke='%23c89a6c' stroke-width='6' stroke-linecap='round' opacity='.76'/%3E%3Ccircle cx='66' cy='94' r='10' fill='%23dfe2cf' opacity='.82'/%3E%3Ccircle cx='66' cy='252' r='10' fill='%23e2b079' opacity='.86'/%3E%3Ccircle cx='66' cy='411' r='10' fill='%23d9a7a0' opacity='.82'/%3E%3Ccircle cx='66' cy='570' r='10' fill='%23dfe2cf' opacity='.82'/%3E%3Ccircle cx='66' cy='730' r='10' fill='%23e2b079' opacity='.86'/%3E%3C/svg%3E");
   background-repeat: repeat-y, repeat-y;
-  background-size: clamp(80px, 6vw, 130px) auto, clamp(80px, 6vw, 130px) auto;
-  background-position: left top, right 3rem top 9rem;
+  background-size: clamp(80px, 6vw, 130px) 900px, clamp(80px, 6vw, 130px) 900px;
+  background-position: left 8rem, right 3rem top 0;
 }
 
 @media (max-width: 1380px) {
