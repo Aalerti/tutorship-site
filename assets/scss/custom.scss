@@ -2842,6 +2842,75 @@ body {
 .bg-paper-12, .bg-paper-29, .bg-paper-45 { scale: 1.34; }
 .bg-paper-16, .bg-paper-27, .bg-paper-44 { scale: 0.62; }
 
+.bg-ribbon,
+.bg-code {
+  position: absolute;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.16;
+  color: rgba(62, 48, 43, 0.62);
+  font-family: "Nunito", var(--base-font-family), -apple-system, sans-serif;
+  font-weight: 900;
+}
+
+.bg-code {
+  padding: 0.35rem 0.65rem;
+  border-radius: 6px;
+  background: rgba(255, 250, 241, 0.34);
+  font-size: clamp(1.05rem, 1.05vw, 1.65rem);
+  letter-spacing: 0;
+  box-shadow: 0 8px 18px rgba(77, 55, 43, 0.035);
+}
+
+.bg-ribbon {
+  display: grid;
+  gap: 0.55rem;
+  width: clamp(86px, 7vw, 130px);
+}
+
+.bg-ribbon::before {
+  content: "";
+  position: absolute;
+  top: -1.8rem;
+  left: 50%;
+  width: 2px;
+  height: calc(100% + 2.5rem);
+  background: rgba(77, 55, 43, 0.34);
+  transform: translateX(-50%);
+}
+
+.bg-ribbon span {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  min-height: 34px;
+  border: 1px solid rgba(111, 81, 63, 0.13);
+  border-radius: 7px;
+  background: rgba(255, 250, 241, 0.42);
+  box-shadow: 0 8px 16px rgba(77, 55, 43, 0.035);
+}
+
+.bg-ribbon span:nth-child(2) { background: rgba(245, 220, 207, 0.38); }
+.bg-ribbon span:nth-child(3) { background: rgba(223, 226, 207, 0.35); }
+
+.bg-ribbon-01 { left: 23vw; top: 95rem; transform: rotate(-5deg); }
+.bg-ribbon-02 { right: 22vw; top: 98rem; transform: rotate(5deg); }
+.bg-ribbon-03 { left: 50vw; top: 113rem; transform: translateX(-50%) rotate(2deg); }
+.bg-code-01 { left: 18vw; top: 121rem; transform: rotate(-4deg); }
+.bg-code-02 { right: 18vw; top: 119rem; transform: rotate(5deg); }
+.bg-code-03 { left: 34vw; top: 132rem; transform: rotate(3deg); }
+.bg-code-04 { right: 34vw; top: 136rem; transform: rotate(-4deg); }
+.bg-code-05 { left: 50vw; top: 146rem; transform: translateX(-50%) rotate(-2deg); }
+.bg-paper-49 { left: 18vw; top: 106rem; transform: rotate(8deg) scale(0.78); background-color: rgba(245, 220, 207, 0.5); }
+.bg-paper-50 { right: 16vw; top: 108rem; transform: rotate(-7deg) scale(0.86); background-color: rgba(255, 250, 241, 0.55); }
+.bg-paper-51 { left: 8vw; top: 119rem; transform: rotate(-6deg) scale(0.68); }
+.bg-paper-52 { right: 8vw; top: 125rem; transform: rotate(7deg) scale(0.74); }
+.bg-paper-53 { left: 29vw; top: 151rem; transform: rotate(5deg) scale(0.72); }
+.bg-paper-54 { right: 28vw; top: 150rem; transform: rotate(-5deg) scale(0.82); }
+.bg-paper-55 { left: 43vw; top: 104rem; transform: rotate(4deg) scale(0.8); }
+.bg-paper-56 { right: 42vw; top: 156rem; transform: rotate(-7deg) scale(0.76); background: linear-gradient(180deg, rgba(232, 224, 204, 0.5), rgba(213, 220, 193, 0.44)); }
+
 .group-picker,
 .intro-zone,
 .board-fragments,
