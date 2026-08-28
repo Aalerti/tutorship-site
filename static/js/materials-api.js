@@ -150,7 +150,8 @@
     panel.innerHTML = '<button class="admin-panel-toggle" type="button">Тьюторский режим</button><div class="admin-panel-body" hidden><form class="admin-login-form"><input name="email" type="email" placeholder="Почта" autocomplete="username" required><input name="password" type="password" placeholder="Пароль" autocomplete="current-password" required><button type="submit">Войти</button></form><form class="admin-material-form" hidden><input name="title" placeholder="Название" required><input name="description" placeholder="Описание"><select name="directionSlug" required></select><select name="semesterNumber"></select><select name="type"><option value="GUIDE">Гайд</option><option value="NOTES">Конспект</option><option value="EXAM">Экзамен</option><option value="LINKS">Ссылки</option><option value="OTHER">Другое</option></select><input name="externalUrl" type="url" placeholder="Ссылка на материал"><button type="submit">Добавить</button><button type="button" data-admin-logout>Выйти</button></form><p class="admin-panel-status" data-admin-status></p></div>';
     document.body.append(panel);
     const body = panel.querySelector(".admin-panel-body");
-    panel.querySelector(".admin-panel-toggle").addEventListener("click", () => { body.hidden = !body.hidden; });
+    const toggle = panel.querySelector(".admin-panel-toggle");
+    toggle.addEventListener("click", () => { body.hidden = !body.hidden; });
     panel.querySelector(".admin-login-form").addEventListener("submit", onLogin);
     panel.querySelector(".admin-material-form").addEventListener("submit", onCreateMaterial);
     panel.querySelector("[data-admin-logout]").addEventListener("click", onLogout);
@@ -162,7 +163,9 @@
     const material = document.querySelector(".admin-material-form");
     if (!login || !material) return;
     login.hidden = Boolean(state.token); material.hidden = !state.token; fillSelects();
-    setPanelStatus(state.token ? "Режим тьютора включён" : "", false);
+    const toggle = document.querySelector(".admin-panel-toggle");
+    if (toggle) toggle.textContent = state.token ? "Тьюторский режим включён" : "Тьюторский режим: войти";
+    setPanelStatus(state.token ? "Режим тьютора включён. На карточках из базы доступны: В архив и Удалить." : "", false);
   }
 
   function fillSelects() {
