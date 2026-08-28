@@ -20,8 +20,21 @@ export async function buildApp() {
 
   app.setErrorHandler(errorHandler);
 
+  const allowedOrigins = new Set([
+    env.PUBLIC_SITE_URL,
+    "http://localhost:1313",
+    "http://127.0.0.1:1313"
+  ]);
+
   await app.register(cors, {
-    origin: env.PUBLIC_SITE_URL,
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.has(origin)) {
+        callback(null, true);
+        return;
+      }
+
+      callback(new Error("Origin is not allowed"), false);
+    },
     credentials: true
   });
   await app.register(multipart, {

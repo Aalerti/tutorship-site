@@ -30,9 +30,9 @@
       </div>
     {{ end }}
 
-    <div class="board-main">
+    <div class="board-main" data-direction="{{ $g.code }}">
       {{ if $guides }}
-        <div class="posts-cards board-cards">
+        <div class="posts-cards board-cards" data-materials-list data-direction="{{ $g.code }}">
           {{ $now := now }}
           {{ range sort $guides "Date" "asc" }}
             {{ $release := .Date }}
@@ -58,7 +58,7 @@
           {{ end }}
         </div>
       {{ else }}
-        <div class="board-empty">
+        <div class="board-empty" data-materials-empty data-direction="{{ $g.code }}">
           <span class="board-empty-stamp">Скоро</span>
           <p class="board-empty-text">Гайды для этого направления ещё пишутся.</p>
           <p class="board-empty-hint">Учишься здесь и хочешь помочь собрать материалы? Напиши нам — доска ждёт своих авторов.</p>

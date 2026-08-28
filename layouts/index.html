@@ -155,7 +155,10 @@
 
 {{ range $i, $g := .Site.Data.groups }}
   {{ partial "direction-board.html" (dict "group" $g "ctx" $ "first" (eq $i 0)) }}
+
 {{ end }}
+
+<script src="/js/materials-api.js" defer></script>
 
 <section class="years-grid" id="archive">
   <a class="year-card" href="/posts/2025/">
