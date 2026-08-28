@@ -83,6 +83,11 @@ body {
   font-size: 1.6rem;
 }
 
+main.main {
+  position: relative;
+  overflow: hidden;
+}
+
 
 body::before {
   content: "";
