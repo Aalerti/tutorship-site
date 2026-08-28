@@ -14,11 +14,17 @@ const directions = [
 
 const semesters = [
   [1, "Первый семестр", "Старт учёбы и первые предметы"],
-  [2, "Первая сессия", "Материалы для первой сессии"],
-  [3, "Второй семестр", "Продолжение первого курса"]
+  [2, "Второй семестр", "Продолжение первого курса"],
+  [3, "Третий семестр", "Второй курс, осенний семестр"],
+  [4, "Четвёртый семестр", "Второй курс, весенний семестр"],
+  [5, "Пятый семестр", "Третий курс, осенний семестр"],
+  [6, "Шестой семестр", "Третий курс, весенний семестр"],
+  [7, "Седьмой семестр", "Четвёртый курс, осенний семестр"],
+  [8, "Восьмой семестр", "Четвёртый курс, весенний семестр"]
 ] as const;
 
 async function main() {
+  const archivedAt = new Date("2026-08-28T00:00:00.000Z");
   const admin = await prisma.user.upsert({
     where: { email: "admin@tutorship.local" },
     update: {},
@@ -72,7 +78,7 @@ async function main() {
       slug: "o-divnyy-novyy-mir",
       description: "Гайд на второй семестр",
       externalUrl: "/posts/2025/3/",
-      semesterNumber: 3,
+      semesterNumber: 2,
       publishedAt: new Date("2026-02-06T00:00:00.000Z"),
       sortOrder: 3
     }
@@ -93,7 +99,8 @@ async function main() {
         directionId: pi.id,
         status: MaterialStatus.PUBLISHED,
         publishedAt: seed.publishedAt,
-        sortOrder: seed.sortOrder
+        sortOrder: seed.sortOrder,
+        archivedAt
       },
       create: {
         title: seed.title,
@@ -106,7 +113,8 @@ async function main() {
         directionId: pi.id,
         authorId: admin.id,
         publishedAt: seed.publishedAt,
-        sortOrder: seed.sortOrder
+        sortOrder: seed.sortOrder,
+        archivedAt
       }
     });
   }

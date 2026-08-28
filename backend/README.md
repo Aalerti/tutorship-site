@@ -50,6 +50,9 @@ Example:
 
 ```bash
 curl "http://localhost:4000/api/materials?direction=pi&semester=1"
+
+# Archived materials for one direction
+curl "http://localhost:4000/api/materials?direction=pi&archived=true"
 ```
 
 ## Auth endpoints
@@ -69,6 +72,8 @@ Require `Authorization: Bearer <accessToken>`.
 - `PATCH /api/admin/materials/:id`
 - `POST /api/admin/materials/:id/publish`
 - `POST /api/admin/materials/:id/unpublish`
+- `POST /api/admin/materials/:id/archive`
+- `POST /api/admin/materials/:id/unarchive`
 - `DELETE /api/admin/materials/:id`
 - `POST /api/admin/uploads`
 - `GET /api/admin/users`
@@ -99,3 +104,9 @@ The current Hugo page can stay as the visual shell. The next step is to replace 
 ```text
 GET http://localhost:4000/api/materials?direction=pi
 ```
+
+## Archive behavior
+
+Main boards load only non-archived published materials. The folder `Материалы предыдущих годов` loads materials from the same direction with `archived=true`. Tutors can move a material to archive or return it from archive without deleting it.
+
+The seed creates semesters 1-8. Existing seeded PI guides are placed into the archive by default, so a fresh database starts with previous-year materials inside the archive folder.

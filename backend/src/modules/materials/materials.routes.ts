@@ -2,12 +2,14 @@ import { MaterialStatus } from "@prisma/client";
 import type { FastifyInstance } from "fastify";
 import { writeAuditLog } from "../audit/audit.service.js";
 import {
+  archiveMaterial,
   createMaterial,
   getAdminMaterial,
   getPublicMaterial,
   listMaterials,
   setMaterialStatus,
   softDeleteMaterial,
+  unarchiveMaterial,
   updateMaterial
 } from "./materials.service.js";
 import { materialCreateSchema, materialListQuerySchema, materialUpdateSchema } from "./materials.schemas.js";
@@ -17,7 +19,8 @@ export async function materialRoutes(app: FastifyInstance) {
     const input = materialListQuerySchema.parse(request.query);
     return listMaterials(app.prisma, {
       ...input,
-      includeHidden: false
+      includeHidden: false,
+      archived: input.archived
     });
   });
 
@@ -36,7 +39,8 @@ export async function materialRoutes(app: FastifyInstance) {
     const input = materialListQuerySchema.parse(request.query);
     return listMaterials(app.prisma, {
       ...input,
-      includeHidden: true
+      includeHidden: true,
+      archived: input.archived
     });
   });
 
@@ -123,6 +127,46 @@ export async function materialRoutes(app: FastifyInstance) {
     await writeAuditLog(app.prisma, {
       userId: request.user.id,
       action: "material.unpublish",
+      entityType: "material",
+      entityId: id,
+      before,
+      after: material
+    });
+
+    return material;
+  });
+
+  app.post("/admin/materials/:id/archive", { preHandler: app.authenticate }, async (request, reply) => {
+    const { id } = request.params as { id: string };
+    const before = await getAdminMaterial(app.prisma, id);
+    if (!before) {
+      return reply.code(404).send({ message: "Материал не найден" });
+    }
+
+    const material = await archiveMaterial(app.prisma, id, request.user.id);
+    await writeAuditLog(app.prisma, {
+      userId: request.user.id,
+      action: "material.archive",
+      entityType: "material",
+      entityId: id,
+      before,
+      after: material
+    });
+
+    return material;
+  });
+
+  app.post("/admin/materials/:id/unarchive", { preHandler: app.authenticate }, async (request, reply) => {
+    const { id } = request.params as { id: string };
+    const before = await getAdminMaterial(app.prisma, id);
+    if (!before) {
+      return reply.code(404).send({ message: "Материал не найден" });
+    }
+
+    const material = await unarchiveMaterial(app.prisma, id);
+    await writeAuditLog(app.prisma, {
+      userId: request.user.id,
+      action: "material.unarchive",
       entityType: "material",
       entityId: id,
       before,

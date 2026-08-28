@@ -2891,3 +2891,91 @@ body {
     bottom: 76px;
   }
 }
+
+.archive-folder {
+  position: relative;
+  z-index: 3;
+  grid-column: 1 / -1;
+  width: min(360px, 100%);
+  margin: 2rem 0 0 auto;
+  font-family: Nunito, var(--base-font-family), -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.archive-folder-cover {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-end;
+  width: 100%;
+  min-height: 118px;
+  padding: 2.6rem 1.4rem 1.15rem;
+  border: 1px solid rgba(111, 81, 63, 0.18);
+  border-radius: 8px;
+  background: linear-gradient(180deg, #f3dfc8 0 26%, #d3a77f 27% 100%);
+  color: var(--tutorship-ink);
+  box-shadow: 0 16px 34px rgba(77, 55, 43, 0.18);
+  cursor: pointer;
+  text-align: left;
+  transform: rotate(-0.8deg);
+}
+
+.archive-folder-cover::before {
+  content: "";
+  position: absolute;
+  top: -16px;
+  left: 18px;
+  width: 118px;
+  height: 34px;
+  border: 1px solid rgba(111, 81, 63, 0.13);
+  border-bottom: 0;
+  border-radius: 8px 8px 0 0;
+  background: #f3dfc8;
+}
+
+.archive-folder-cover span {
+  font-family: Cormorant Garamond, Georgia, serif;
+  font-size: 2.25rem;
+  font-weight: 800;
+  line-height: 1.04;
+}
+
+.archive-folder-cover small {
+  margin-top: 0.55rem;
+  color: var(--tutorship-text-secondary);
+  font-size: 1.08rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.archive-drawer {
+  margin-top: 1rem;
+  padding: 1rem;
+  border: 1px solid rgba(111, 81, 63, 0.16);
+  border-radius: 8px;
+  background: rgba(255, 250, 241, 0.72);
+  box-shadow: inset 0 0 0 2px rgba(143, 107, 80, 0.08);
+}
+
+.archive-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 1rem;
+}
+
+.archive-list .post-card {
+  min-height: 156px;
+  transform: rotate(0deg);
+}
+
+.archive-empty {
+  margin: 0;
+  color: var(--tutorship-text-secondary);
+  font-weight: 800;
+}
+
+.material-actions {
+  gap: 0.55rem;
+  flex-wrap: wrap;
+}

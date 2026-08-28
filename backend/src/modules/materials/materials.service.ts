@@ -9,6 +9,7 @@ type MaterialListInput = {
   limit: number;
   offset: number;
   includeHidden: boolean;
+  archived: boolean;
 };
 
 type MaterialCreateInput = {
@@ -74,7 +75,8 @@ const materialInclude = {
 
 export async function listMaterials(prisma: PrismaClient, input: MaterialListInput) {
   const where: Prisma.MaterialWhereInput = {
-    deletedAt: null
+    deletedAt: null,
+    archivedAt: input.archived ? { not: null } : null
   };
 
   if (!input.includeHidden) {
@@ -240,6 +242,28 @@ export async function softDeleteMaterial(prisma: PrismaClient, id: string, userI
       status: MaterialStatus.DELETED,
       deletedAt: new Date(),
       deletedBy: userId
+    },
+    include: materialInclude
+  });
+}
+
+export async function archiveMaterial(prisma: PrismaClient, id: string, userId: string) {
+  return prisma.material.update({
+    where: { id },
+    data: {
+      archivedAt: new Date(),
+      archivedBy: userId
+    },
+    include: materialInclude
+  });
+}
+
+export async function unarchiveMaterial(prisma: PrismaClient, id: string) {
+  return prisma.material.update({
+    where: { id },
+    data: {
+      archivedAt: null,
+      archivedBy: null
     },
     include: materialInclude
   });

@@ -93,6 +93,8 @@ model Material {
   publishedAt DateTime?
   deletedAt   DateTime?
   deletedBy   String?
+  archivedAt  DateTime?
+  archivedBy  String?
   isPinned    Boolean      @default(false)
   sortOrder   Int          @default(0)
   createdAt   DateTime     @default(now())
@@ -104,6 +106,7 @@ model Material {
   attachments MaterialAttachment[]
 
   @@index([directionId, status, isPinned, sortOrder])
+  @@index([directionId, archivedAt])
   @@index([semesterId])
   @@index([type])
 }
