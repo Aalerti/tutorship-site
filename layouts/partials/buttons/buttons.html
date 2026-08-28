@@ -1,6 +1,6 @@
 <div class="buttons">
     <button class="back-button" onclick="window.history.back()">Назад</button>
-    <button class="back-button" onclick="window.location.href='/#groups'">К выбору направления</button>
+    <button class="back-button" onclick="const groups=document.getElementById('groups'); if(groups){ history.replaceState(null, '', '/#groups'); groups.scrollIntoView({block:'start'}); } else { window.location.href='/#groups'; }">К выбору направления</button>
 </div>
 <style>
 @media (max-width: 480px) {
