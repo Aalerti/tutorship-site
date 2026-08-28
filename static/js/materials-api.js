@@ -46,16 +46,26 @@
       actions.className = "material-actions";
       const archive = document.createElement("button");
       archive.type = "button";
-      archive.textContent = options.archived ? "Вернуть" : "В архив";
+      archive.textContent = options.archived ? "Вернуть на доску" : "В архив";
+      archive.className = options.archived ? "material-action material-action-return" : "material-action material-action-archive";
+      archive.setAttribute("aria-label", options.archived ? "Вернуть материал на доску" : "Переместить материал в архив");
       archive.addEventListener("click", async (event) => {
         event.preventDefault(); event.stopPropagation();
         const action = options.archived ? "unarchive" : "archive";
-        await api("/api/admin/materials/" + material.id + "/" + action, { method: "POST" });
-        await loadMaterials();
+        archive.disabled = true;
+        try {
+          await api("/api/admin/materials/" + material.id + "/" + action, { method: "POST" });
+          setPanelStatus(options.archived ? "Материал вернулся на доску" : "Материал отправлен в архив", false);
+          await loadMaterials();
+        } catch (error) {
+          setPanelStatus(error.message, true);
+          archive.disabled = false;
+        }
       });
       const remove = document.createElement("button");
       remove.type = "button";
       remove.textContent = "Удалить";
+      remove.className = "material-action material-action-delete";
       remove.addEventListener("click", async (event) => {
         event.preventDefault(); event.stopPropagation();
         if (!confirm("Удалить материал «" + material.title + "»?")) return;
