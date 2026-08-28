@@ -38,6 +38,24 @@ type MaterialUpdateInput = Partial<MaterialCreateInput> & {
   replaceAttachments?: boolean;
 };
 
+async function makeUniqueSlug(prisma: PrismaClient, base: string, ignoredId?: string) {
+  const normalized = slugify(base) || "material";
+
+  for (let index = 0; index < 100; index += 1) {
+    const candidate = index === 0 ? normalized : `${normalized}-${index + 1}`;
+    const existing = await prisma.material.findUnique({
+      where: { slug: candidate },
+      select: { id: true }
+    });
+
+    if (!existing || existing.id === ignoredId) {
+      return candidate;
+    }
+  }
+
+  return `${normalized}-${Date.now()}`;
+}
+
 const materialInclude = {
   direction: true,
   semester: true,
@@ -137,7 +155,9 @@ export async function createMaterial(prisma: PrismaClient, input: MaterialCreate
   const semester = input.semesterNumber
     ? await prisma.semester.findUniqueOrThrow({ where: { number: input.semesterNumber } })
     : null;
-  const slug = input.slug ?? slugify(input.title);
+  const slug = input.slug
+    ? await makeUniqueSlug(prisma, input.slug)
+    : await makeUniqueSlug(prisma, input.title);
   const status = input.status ?? MaterialStatus.PUBLISHED;
 
   return prisma.material.create({
@@ -178,7 +198,7 @@ export async function updateMaterial(prisma: PrismaClient, id: string, input: Ma
     where: { id },
     data: {
       title: input.title,
-      slug: input.slug,
+      slug: input.slug ? await makeUniqueSlug(prisma, input.slug, id) : input.title ? await makeUniqueSlug(prisma, input.title, id) : undefined,
       description: input.description,
       content: input.content,
       type: input.type,
