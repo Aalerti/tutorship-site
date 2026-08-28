@@ -1994,17 +1994,25 @@ a {
    Выбор направления (группы факультета)
    ============================================================ */
 
+.hero + .group-picker {
+  margin-top: 2.4rem;
+}
+
 .group-picker {
   position: relative;
   z-index: 2;
   width: calc(100% - 3rem);
   max-width: 1260px;
-  margin: 4rem auto 4.5rem;
+  margin: 2.4rem auto 2.8rem;
   font-family: "Nunito", var(--base-font-family), -apple-system, sans-serif;
 }
 
 .group-picker + .direction {
-  margin-top: 1rem;
+  margin-top: 0;
+}
+
+.intro-zone {
+  margin-top: 2rem;
 }
 
 .group-picker-title {
@@ -2264,8 +2272,8 @@ a {
 .direction {
   position: relative;
   z-index: 2;
-  scroll-margin-top: 2rem;
-  margin-bottom: 5.5rem;
+  scroll-margin-top: 0;
+  margin-bottom: 4.2rem;
   font-family: "Nunito", var(--base-font-family), -apple-system, sans-serif;
 }
 
@@ -2666,14 +2674,14 @@ body {
   display: block;
   border: 1px solid rgba(111, 81, 63, 0.12);
   border-radius: 8px;
-  opacity: 0.82;
-  filter: saturate(1.08);
+  opacity: 0.9;
+  filter: saturate(1.18);
   box-shadow: 0 24px 46px rgba(77, 55, 43, 0.12);
 }
 
 .bg-folder {
-  width: clamp(150px, 12vw, 240px);
-  height: clamp(96px, 7.6vw, 150px);
+  width: clamp(190px, 15vw, 310px);
+  height: clamp(122px, 9.5vw, 195px);
   background: linear-gradient(180deg, rgba(255, 250, 241, 0.94), rgba(246, 234, 217, 0.94));
 }
 
@@ -2691,8 +2699,8 @@ body {
 }
 
 .bg-sheet {
-  width: clamp(140px, 10.5vw, 210px);
-  height: clamp(100px, 7.4vw, 150px);
+  width: clamp(170px, 13vw, 270px);
+  height: clamp(125px, 9vw, 190px);
   background:
     linear-gradient(180deg, transparent 0 30px, rgba(111, 81, 63, 0.045) 31px, transparent 32px),
     rgba(255, 250, 241, 0.9);
@@ -2700,8 +2708,8 @@ body {
 }
 
 .bg-stack {
-  width: clamp(150px, 11vw, 220px);
-  height: clamp(110px, 8vw, 162px);
+  width: clamp(185px, 14vw, 290px);
+  height: clamp(135px, 10vw, 210px);
   background:
     linear-gradient(180deg, transparent 0 31px, rgba(111, 81, 63, 0.04) 32px, transparent 33px),
     rgba(255, 250, 241, 0.88);
@@ -2734,20 +2742,55 @@ body {
   transform: translateX(-50%) rotate(-2deg);
 }
 
-.bg-paper-01 { left: 2vw; top: 20rem; transform: rotate(-7deg); background-color: rgba(255, 250, 241, 0.94); }
-.bg-paper-02 { right: 4vw; top: 24rem; transform: rotate(6deg); background-color: rgba(231, 196, 188, 0.88); }
-.bg-paper-03 { left: 4vw; top: 45rem; transform: rotate(5deg); }
-.bg-paper-04 { right: 2vw; top: 52rem; transform: rotate(-6deg); background: linear-gradient(180deg, rgba(232, 224, 204, 0.94), rgba(213, 220, 193, 0.92)); }
-.bg-paper-05 { left: 1vw; top: 74rem; transform: rotate(-5deg); background-color: rgba(245, 220, 207, 0.9); }
-.bg-paper-06 { right: 5vw; top: 82rem; transform: rotate(8deg); }
-.bg-paper-07 { left: 6vw; top: 108rem; transform: rotate(4deg); background-color: rgba(255, 250, 241, 0.9); }
-.bg-paper-08 { right: 3vw; top: 118rem; transform: rotate(-7deg); background-color: rgba(246, 234, 217, 0.9); }
-.bg-paper-09 { left: 2vw; top: 148rem; transform: rotate(7deg); background: linear-gradient(180deg, rgba(236, 205, 199, 0.92), rgba(231, 196, 188, 0.9)); }
-.bg-paper-10 { right: 6vw; top: 154rem; transform: rotate(4deg); background-color: rgba(223, 226, 207, 0.88); }
-.bg-paper-11 { left: 5vw; top: 188rem; transform: rotate(-5deg); }
-.bg-paper-12 { right: 2vw; top: 198rem; transform: rotate(6deg); background-color: rgba(255, 250, 241, 0.92); }
-.bg-paper-13 { left: 3vw; top: 232rem; transform: rotate(5deg); background-color: rgba(245, 220, 207, 0.88); }
-.bg-paper-14 { right: 5vw; top: 240rem; transform: rotate(-5deg); background: linear-gradient(180deg, rgba(232, 224, 204, 0.92), rgba(213, 220, 193, 0.9)); }
+.bg-paper-01 { left: -3vw; top: 2rem; transform: rotate(-8deg); background-color: rgba(255, 250, 241, 0.96); }
+.bg-paper-02 { right: -2vw; top: 4rem; transform: rotate(7deg); background-color: rgba(231, 196, 188, 0.9); }
+.bg-paper-03 { left: 9vw; top: 18rem; transform: rotate(5deg); }
+.bg-paper-04 { right: 10vw; top: 20rem; transform: rotate(-6deg); background: linear-gradient(180deg, rgba(232, 224, 204, 0.95), rgba(213, 220, 193, 0.93)); }
+.bg-paper-05 { left: -1vw; top: 39rem; transform: rotate(-5deg); background-color: rgba(245, 220, 207, 0.92); }
+.bg-paper-06 { right: 1vw; top: 42rem; transform: rotate(8deg); }
+.bg-paper-07 { left: 13vw; top: 61rem; transform: rotate(4deg); background-color: rgba(255, 250, 241, 0.91); }
+.bg-paper-08 { right: 12vw; top: 64rem; transform: rotate(-7deg); background-color: rgba(246, 234, 217, 0.91); }
+.bg-paper-09 { left: 2vw; top: 84rem; transform: rotate(7deg); background: linear-gradient(180deg, rgba(236, 205, 199, 0.93), rgba(231, 196, 188, 0.91)); }
+.bg-paper-10 { right: 3vw; top: 88rem; transform: rotate(4deg); background-color: rgba(223, 226, 207, 0.9); }
+.bg-paper-11 { left: 15vw; top: 108rem; transform: rotate(-5deg); }
+.bg-paper-12 { right: 15vw; top: 112rem; transform: rotate(6deg); background-color: rgba(255, 250, 241, 0.93); }
+.bg-paper-13 { left: -2vw; top: 132rem; transform: rotate(5deg); background-color: rgba(245, 220, 207, 0.9); }
+.bg-paper-14 { right: -1vw; top: 136rem; transform: rotate(-5deg); background: linear-gradient(180deg, rgba(232, 224, 204, 0.93), rgba(213, 220, 193, 0.91)); }
+.bg-paper-15 { left: 24vw; top: 7rem; transform: rotate(9deg); background-color: rgba(246, 234, 217, 0.88); }
+.bg-paper-16 { right: 25vw; top: 10rem; transform: rotate(-8deg); background-color: rgba(245, 220, 207, 0.86); }
+.bg-paper-17 { left: 30vw; top: 32rem; transform: rotate(-4deg); }
+.bg-paper-18 { right: 30vw; top: 36rem; transform: rotate(5deg); background-color: rgba(223, 226, 207, 0.84); }
+.bg-paper-19 { left: 20vw; top: 52rem; transform: rotate(8deg); background-color: rgba(231, 196, 188, 0.82); }
+.bg-paper-20 { right: 21vw; top: 55rem; transform: rotate(-7deg); }
+.bg-paper-21 { left: -4vw; top: 160rem; transform: rotate(-8deg); background-color: rgba(255, 250, 241, 0.93); }
+.bg-paper-22 { right: -3vw; top: 164rem; transform: rotate(7deg); background-color: rgba(245, 220, 207, 0.9); }
+.bg-paper-23 { left: 12vw; top: 184rem; transform: rotate(4deg); }
+.bg-paper-24 { right: 12vw; top: 188rem; transform: rotate(-5deg); background-color: rgba(223, 226, 207, 0.9); }
+.bg-paper-25 { left: 25vw; top: 205rem; transform: rotate(-6deg); background-color: rgba(246, 234, 217, 0.86); }
+.bg-paper-26 { right: 25vw; top: 210rem; transform: rotate(6deg); background-color: rgba(236, 205, 199, 0.86); }
+.bg-paper-27 { left: 1vw; top: 232rem; transform: rotate(8deg); }
+.bg-paper-28 { right: 2vw; top: 238rem; transform: rotate(-7deg); background-color: rgba(255, 250, 241, 0.92); }
+.bg-paper-29 { left: 15vw; top: 260rem; transform: rotate(-5deg); background-color: rgba(223, 226, 207, 0.88); }
+.bg-paper-30 { right: 16vw; top: 266rem; transform: rotate(5deg); }
+.bg-paper-31 { left: -2vw; top: 292rem; transform: rotate(-6deg); background-color: rgba(245, 220, 207, 0.9); }
+.bg-paper-32 { right: -2vw; top: 298rem; transform: rotate(6deg); background-color: rgba(246, 234, 217, 0.9); }
+.bg-paper-33 { left: 24vw; top: 322rem; transform: rotate(7deg); }
+.bg-paper-34 { right: 25vw; top: 328rem; transform: rotate(-7deg); background-color: rgba(231, 196, 188, 0.84); }
+.bg-paper-35 { left: 6vw; top: 352rem; transform: rotate(5deg); background-color: rgba(255, 250, 241, 0.92); }
+.bg-paper-36 { right: 7vw; top: 360rem; transform: rotate(-5deg); background-color: rgba(223, 226, 207, 0.88); }
+.bg-paper-37 { left: 30vw; top: 382rem; transform: rotate(-6deg); background-color: rgba(245, 220, 207, 0.86); }
+.bg-paper-38 { right: 31vw; top: 390rem; transform: rotate(6deg); }
+
+.bg-paper-39 { left: 42vw; top: 3rem; transform: rotate(-5deg); background-color: rgba(255, 250, 241, 0.78); }
+.bg-paper-40 { right: 42vw; top: 17rem; transform: rotate(6deg); background-color: rgba(223, 226, 207, 0.78); }
+.bg-paper-41 { left: 38vw; top: 48rem; transform: rotate(7deg); background-color: rgba(245, 220, 207, 0.78); }
+.bg-paper-42 { right: 39vw; top: 74rem; transform: rotate(-7deg); background-color: rgba(246, 234, 217, 0.78); }
+.bg-paper-43 { left: 35vw; top: 98rem; transform: rotate(-4deg); background-color: rgba(231, 196, 188, 0.72); }
+.bg-paper-44 { right: 36vw; top: 128rem; transform: rotate(4deg); background-color: rgba(255, 250, 241, 0.74); }
+.bg-paper-45 { left: 40vw; top: 172rem; transform: rotate(6deg); background-color: rgba(223, 226, 207, 0.76); }
+.bg-paper-46 { right: 41vw; top: 220rem; transform: rotate(-5deg); background-color: rgba(245, 220, 207, 0.76); }
+.bg-paper-47 { left: 33vw; top: 284rem; transform: rotate(5deg); background-color: rgba(246, 234, 217, 0.78); }
+.bg-paper-48 { right: 34vw; top: 344rem; transform: rotate(-6deg); background-color: rgba(231, 196, 188, 0.72); }
 
 .group-picker,
 .intro-zone,
@@ -2760,7 +2803,7 @@ body {
 }
 
 @media (max-width: 900px) {
-  .page-paper-backdrop { opacity: 0.45; }
+  .page-paper-backdrop { opacity: 0.5; }
 }
 
 .admin-panel {
