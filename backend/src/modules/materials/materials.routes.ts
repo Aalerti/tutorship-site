@@ -14,6 +14,42 @@ import {
 } from "./materials.service.js";
 import { materialCreateSchema, materialListQuerySchema, materialUpdateSchema } from "./materials.schemas.js";
 
+async function canManageDirection(app: FastifyInstance, userId: string, role: string, directionSlug: string) {
+  if (role === "ADMIN") {
+    return true;
+  }
+
+  const access = await app.prisma.userDirection.findFirst({
+    where: {
+      userId,
+      direction: { slug: directionSlug }
+    },
+    select: { userId: true }
+  });
+
+  return Boolean(access);
+}
+
+async function canManageMaterial(app: FastifyInstance, userId: string, role: string, materialId: string) {
+  if (role === "ADMIN") {
+    return true;
+  }
+
+  const access = await app.prisma.userDirection.findFirst({
+    where: {
+      userId,
+      direction: {
+        materials: {
+          some: { id: materialId }
+        }
+      }
+    },
+    select: { userId: true }
+  });
+
+  return Boolean(access);
+}
+
 export async function materialRoutes(app: FastifyInstance) {
   app.get("/materials", async (request) => {
     const input = materialListQuerySchema.parse(request.query);
@@ -37,8 +73,25 @@ export async function materialRoutes(app: FastifyInstance) {
 
   app.get("/admin/materials", { preHandler: app.authenticate }, async (request) => {
     const input = materialListQuerySchema.parse(request.query);
+    let direction = input.direction;
+
+    if (request.user.role !== "ADMIN") {
+      const allowedDirections = await app.prisma.userDirection.findMany({
+        where: { userId: request.user.id },
+        include: { direction: true },
+        orderBy: { direction: { sortOrder: "asc" } }
+      });
+      const allowedSlugs = allowedDirections.map((item) => item.direction.slug);
+      direction = input.direction ?? allowedSlugs[0];
+
+      if (!direction || !allowedSlugs.includes(direction)) {
+        return { items: [], total: 0, limit: input.limit, offset: input.offset };
+      }
+    }
+
     return listMaterials(app.prisma, {
       ...input,
+      direction,
       includeHidden: true,
       archived: input.archived
     });
@@ -51,6 +104,9 @@ export async function materialRoutes(app: FastifyInstance) {
     if (!material) {
       return reply.code(404).send({ message: "Материал не найден" });
     }
+    if (!(await canManageMaterial(app, request.user.id, request.user.role, id))) {
+      return reply.code(403).send({ message: "Этот материал недоступен для вашего аккаунта" });
+    }
 
     return material;
   });
@@ -58,6 +114,10 @@ export async function materialRoutes(app: FastifyInstance) {
   app.post("/admin/materials", { preHandler: app.authenticate }, async (request, reply) => {
     const input = materialCreateSchema.parse(request.body);
     const user = request.user;
+    if (!(await canManageDirection(app, user.id, user.role, input.directionSlug))) {
+      return reply.code(403).send({ message: "Это направление недоступно для вашего аккаунта" });
+    }
+
     const material = await createMaterial(app.prisma, {
       ...input,
       authorId: user.id
@@ -82,6 +142,13 @@ export async function materialRoutes(app: FastifyInstance) {
     }
 
     const input = materialUpdateSchema.parse(request.body);
+    if (!(await canManageMaterial(app, request.user.id, request.user.role, id))) {
+      return reply.code(403).send({ message: "Этот материал недоступен для вашего аккаунта" });
+    }
+    if (input.directionSlug && !(await canManageDirection(app, request.user.id, request.user.role, input.directionSlug))) {
+      return reply.code(403).send({ message: "Это направление недоступно для вашего аккаунта" });
+    }
+
     const material = await updateMaterial(app.prisma, id, input);
 
     await writeAuditLog(app.prisma, {
@@ -101,6 +168,9 @@ export async function materialRoutes(app: FastifyInstance) {
     const before = await getAdminMaterial(app.prisma, id);
     if (!before) {
       return reply.code(404).send({ message: "Материал не найден" });
+    }
+    if (!(await canManageMaterial(app, request.user.id, request.user.role, id))) {
+      return reply.code(403).send({ message: "Этот материал недоступен для вашего аккаунта" });
     }
 
     const material = await setMaterialStatus(app.prisma, id, MaterialStatus.PUBLISHED);
@@ -122,6 +192,9 @@ export async function materialRoutes(app: FastifyInstance) {
     if (!before) {
       return reply.code(404).send({ message: "Материал не найден" });
     }
+    if (!(await canManageMaterial(app, request.user.id, request.user.role, id))) {
+      return reply.code(403).send({ message: "Этот материал недоступен для вашего аккаунта" });
+    }
 
     const material = await setMaterialStatus(app.prisma, id, MaterialStatus.HIDDEN);
     await writeAuditLog(app.prisma, {
@@ -141,6 +214,9 @@ export async function materialRoutes(app: FastifyInstance) {
     const before = await getAdminMaterial(app.prisma, id);
     if (!before) {
       return reply.code(404).send({ message: "Материал не найден" });
+    }
+    if (!(await canManageMaterial(app, request.user.id, request.user.role, id))) {
+      return reply.code(403).send({ message: "Этот материал недоступен для вашего аккаунта" });
     }
 
     const material = await archiveMaterial(app.prisma, id, request.user.id);
@@ -162,6 +238,9 @@ export async function materialRoutes(app: FastifyInstance) {
     if (!before) {
       return reply.code(404).send({ message: "Материал не найден" });
     }
+    if (!(await canManageMaterial(app, request.user.id, request.user.role, id))) {
+      return reply.code(403).send({ message: "Этот материал недоступен для вашего аккаунта" });
+    }
 
     const material = await unarchiveMaterial(app.prisma, id);
     await writeAuditLog(app.prisma, {
@@ -181,6 +260,9 @@ export async function materialRoutes(app: FastifyInstance) {
     const before = await getAdminMaterial(app.prisma, id);
     if (!before) {
       return reply.code(404).send({ message: "Материал не найден" });
+    }
+    if (!(await canManageMaterial(app, request.user.id, request.user.role, id))) {
+      return reply.code(403).send({ message: "Этот материал недоступен для вашего аккаунта" });
     }
 
     const material = await softDeleteMaterial(app.prisma, id, request.user.id);

@@ -48,6 +48,7 @@ model User {
 
   materials    Material[]
   auditLogs    AuditLog[]
+  directions   UserDirection[]
 }
 
 model Direction {
@@ -62,6 +63,19 @@ model Direction {
   updatedAt   DateTime   @updatedAt
 
   materials   Material[]
+  tutors      UserDirection[]
+}
+
+model UserDirection {
+  userId      String
+  directionId String
+  createdAt   DateTime @default(now())
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  direction Direction @relation(fields: [directionId], references: [id], onDelete: Cascade)
+
+  @@id([userId, directionId])
+  @@index([directionId])
 }
 
 model Semester {

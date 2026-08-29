@@ -10,15 +10,27 @@ const publicUserSelect = {
   role: true,
   isActive: true,
   createdAt: true,
-  updatedAt: true
+  updatedAt: true,
+  directions: {
+    include: { direction: true },
+    orderBy: { direction: { sortOrder: "asc" } }
+  }
 } as const;
+
+function serializeUser<T extends { directions: Array<{ direction: unknown }> }>(user: T) {
+  return {
+    ...user,
+    directions: user.directions.map((item) => item.direction)
+  };
+}
 
 export async function userRoutes(app: FastifyInstance) {
   app.get("/", { preHandler: app.requireAdmin }, async () => {
-    return app.prisma.user.findMany({
+    const users = await app.prisma.user.findMany({
       select: publicUserSelect,
       orderBy: [{ role: "asc" }, { name: "asc" }]
     });
+    return users.map(serializeUser);
   });
 
   app.post("/", { preHandler: app.requireAdmin }, async (request, reply) => {
@@ -28,7 +40,12 @@ export async function userRoutes(app: FastifyInstance) {
         email: input.email.toLowerCase(),
         passwordHash: await argon2.hash(input.password),
         name: input.name,
-        role: input.role
+        role: input.role,
+        directions: {
+          create: input.directionSlugs.map((slug) => ({
+            direction: { connect: { slug } }
+          }))
+        }
       },
       select: publicUserSelect
     });
@@ -38,10 +55,10 @@ export async function userRoutes(app: FastifyInstance) {
       action: "user.create",
       entityType: "user",
       entityId: user.id,
-      after: user
+      after: serializeUser(user)
     });
 
-    return reply.code(201).send(user);
+    return reply.code(201).send(serializeUser(user));
   });
 
   app.patch("/:id", { preHandler: app.requireAdmin }, async (request, reply) => {
@@ -63,7 +80,15 @@ export async function userRoutes(app: FastifyInstance) {
         passwordHash: input.password ? await argon2.hash(input.password) : undefined,
         name: input.name,
         role: input.role,
-        isActive: input.isActive
+        isActive: input.isActive,
+        directions: input.directionSlugs
+          ? {
+              deleteMany: {},
+              create: input.directionSlugs.map((slug) => ({
+                direction: { connect: { slug } }
+              }))
+            }
+          : undefined
       },
       select: publicUserSelect
     });
@@ -74,10 +99,10 @@ export async function userRoutes(app: FastifyInstance) {
       entityType: "user",
       entityId: user.id,
       before,
-      after: user
+      after: serializeUser(user)
     });
 
-    return user;
+    return serializeUser(user);
   });
 
   app.post("/:id/disable", { preHandler: app.requireAdmin }, async (request, reply) => {
@@ -103,9 +128,9 @@ export async function userRoutes(app: FastifyInstance) {
       entityType: "user",
       entityId: user.id,
       before,
-      after: user
+      after: serializeUser(user)
     });
 
-    return user;
+    return serializeUser(user);
   });
 }

@@ -15,7 +15,13 @@ export async function authRoutes(app: FastifyInstance) {
   }, async (request, reply) => {
     const input = loginSchema.parse(request.body);
     const user = await app.prisma.user.findUnique({
-      where: { email: input.email.toLowerCase() }
+      where: { email: input.email.toLowerCase() },
+      include: {
+        directions: {
+          include: { direction: true },
+          orderBy: { direction: { sortOrder: "asc" } }
+        }
+      }
     });
 
     if (!user || !user.isActive) {
@@ -51,7 +57,8 @@ export async function authRoutes(app: FastifyInstance) {
         id: user.id,
         email: user.email,
         name: user.name,
-        role: user.role
+        role: user.role,
+        directions: user.directions.map((item) => item.direction)
       }
     };
   });
@@ -90,9 +97,24 @@ export async function authRoutes(app: FastifyInstance) {
     const authUser = request.user;
     const user = await app.prisma.user.findUniqueOrThrow({
       where: { id: authUser.id },
-      select: { id: true, email: true, name: true, role: true, isActive: true }
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        role: true,
+        isActive: true,
+        directions: {
+          include: { direction: true },
+          orderBy: { direction: { sortOrder: "asc" } }
+        }
+      }
     });
 
-    return { user };
+    return {
+      user: {
+        ...user,
+        directions: user.directions.map((item) => item.direction)
+      }
+    };
   });
 }

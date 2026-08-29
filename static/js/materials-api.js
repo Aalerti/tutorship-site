@@ -12,6 +12,20 @@
 
   function materialHref(material) { return material.externalUrl || material.fileUrl || "/"; }
   function authHeaders() { return state.token ? { Authorization: "Bearer " + state.token } : {}; }
+  function availableDirections() {
+    if (!state.token) return [];
+    if (state.user?.role === "ADMIN") return state.directions;
+    const allowed = new Set((state.user?.directions || []).map((direction) => direction.slug));
+    return state.directions.filter((direction) => allowed.has(direction.slug));
+  }
+  function canManageDirection(directionSlug) {
+    if (!state.token) return false;
+    if (state.user?.role === "ADMIN") return true;
+    return (state.user?.directions || []).some((direction) => direction.slug === directionSlug);
+  }
+  function canManageMaterial(material) {
+    return canManageDirection(material.direction?.slug);
+  }
 
   async function api(path, options = {}) {
     const response = await fetch(API_BASE + path, { ...options, credentials: "include", headers: { "Content-Type": "application/json", ...authHeaders(), ...(options.headers || {}) } });
@@ -41,7 +55,7 @@
     date.textContent = formatDate(material.publishedAt || material.createdAt);
     card.append(link, title, description, date);
 
-    if (state.token) {
+    if (canManageMaterial(material)) {
       const actions = document.createElement("div");
       actions.className = "material-actions";
       const archive = document.createElement("button");
@@ -157,33 +171,42 @@
   function renderAdminPanel() {
     const panel = document.createElement("section");
     panel.className = "admin-panel";
-    panel.innerHTML = '<button class="admin-panel-toggle" type="button">Тьюторский режим</button><div class="admin-panel-body" hidden><form class="admin-login-form"><input name="email" type="email" placeholder="Почта" autocomplete="username" required><input name="password" type="password" placeholder="Пароль" autocomplete="current-password" required><button type="submit">Войти</button></form><form class="admin-material-form" hidden><input name="title" placeholder="Название" required><input name="description" placeholder="Описание"><select name="directionSlug" required></select><select name="semesterNumber"></select><select name="type"><option value="GUIDE">Гайд</option><option value="NOTES">Конспект</option><option value="EXAM">Экзамен</option><option value="LINKS">Ссылки</option><option value="OTHER">Другое</option></select><input name="externalUrl" type="url" placeholder="Ссылка на материал"><button type="submit">Добавить</button><button type="button" data-admin-logout>Выйти</button></form><p class="admin-panel-status" data-admin-status></p></div>';
+    panel.innerHTML = '<button class="admin-panel-toggle" type="button">Тьюторский режим</button><div class="admin-panel-body" hidden><div data-admin-panel-content></div><p class="admin-panel-status" data-admin-status></p></div>';
     document.body.append(panel);
     const body = panel.querySelector(".admin-panel-body");
     const toggle = panel.querySelector(".admin-panel-toggle");
     toggle.addEventListener("click", () => { body.hidden = !body.hidden; });
-    panel.querySelector(".admin-login-form").addEventListener("submit", onLogin);
-    panel.querySelector(".admin-material-form").addEventListener("submit", onCreateMaterial);
-    panel.querySelector("[data-admin-logout]").addEventListener("click", onLogout);
     refreshAdminPanel();
   }
 
   function refreshAdminPanel() {
-    const login = document.querySelector(".admin-login-form");
-    const material = document.querySelector(".admin-material-form");
-    if (!login || !material) return;
-    login.hidden = Boolean(state.token); material.hidden = !state.token; fillSelects();
+    const content = document.querySelector("[data-admin-panel-content]");
+    if (!content) return;
+    if (state.token) {
+      content.innerHTML = '<form class="admin-material-form"><input name="title" placeholder="Название" required><input name="description" placeholder="Описание"><select name="directionSlug" required></select><select name="semesterNumber"></select><select name="type"><option value="GUIDE">Гайд</option><option value="NOTES">Конспект</option><option value="EXAM">Экзамен</option><option value="LINKS">Ссылки</option><option value="OTHER">Другое</option></select><input name="externalUrl" type="url" placeholder="Ссылка на материал"><button type="submit">Добавить</button><button type="button" data-admin-logout>Выйти</button></form>';
+      content.querySelector(".admin-material-form").addEventListener("submit", onCreateMaterial);
+      content.querySelector("[data-admin-logout]").addEventListener("click", onLogout);
+      fillSelects();
+    } else {
+      content.innerHTML = '<form class="admin-login-form"><input name="email" type="email" placeholder="Почта" autocomplete="username" required><input name="password" type="password" placeholder="Пароль" autocomplete="current-password" required><button type="submit">Войти</button></form>';
+      content.querySelector(".admin-login-form").addEventListener("submit", onLogin);
+    }
     const toggle = document.querySelector(".admin-panel-toggle");
     if (toggle) toggle.textContent = state.token ? "Тьюторский режим включён" : "Тьюторский режим: войти";
-    setPanelStatus(state.token ? "Режим тьютора включён. На карточках из базы доступны: В архив и Удалить." : "", false);
+    const directions = availableDirections();
+    setPanelStatus(state.token ? "Доступ: " + (state.user?.role === "ADMIN" ? "все направления" : directions.map((d) => d.shortName).join(", ") || "нет направлений") : "", false);
   }
 
   function fillSelects() {
     const directionSelect = document.querySelector('.admin-material-form select[name="directionSlug"]');
     const semesterSelect = document.querySelector('.admin-material-form select[name="semesterNumber"]');
     if (!directionSelect || !semesterSelect) return;
-    directionSelect.innerHTML = state.directions.map((d) => '<option value="' + d.slug + '">' + d.shortName + '</option>').join("");
+    const directions = availableDirections();
+    directionSelect.innerHTML = directions.map((d) => '<option value="' + d.slug + '">' + d.shortName + '</option>').join("");
+    directionSelect.disabled = state.user?.role !== "ADMIN" && directions.length <= 1;
     semesterSelect.innerHTML = '<option value="">Без семестра</option>' + state.semesters.map((s) => '<option value="' + s.number + '">' + s.title + '</option>').join("");
+    const submit = document.querySelector('.admin-material-form button[type="submit"]');
+    if (submit) submit.disabled = directions.length === 0;
   }
 
   async function onLogin(event) {
@@ -202,6 +225,16 @@
 
   async function bootstrap() {
     renderAdminPanel();
+    if (state.token) {
+      try {
+        const me = await api("/api/auth/me");
+        state.user = me.user;
+      } catch (_error) {
+        state.token = "";
+        state.user = null;
+        localStorage.removeItem(TOKEN_KEY);
+      }
+    }
     try { const result = await Promise.all([api("/api/directions"), api("/api/semesters")]); state.directions = result[0]; state.semesters = result[1]; refreshAdminPanel(); }
     catch (error) { console.warn("Directory API unavailable.", error); }
     await loadMaterials();
