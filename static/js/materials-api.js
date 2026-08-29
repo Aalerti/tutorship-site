@@ -1,7 +1,7 @@
 (function () {
   const API_BASE = window.TUTORSHIP_API_BASE || "http://localhost:4000";
   const TOKEN_KEY = "TutorshipAdminToken";
-  const state = { token: localStorage.getItem(TOKEN_KEY) || "", user: null, directions: [], semesters: [] };
+  const state = { token: localStorage.getItem(TOKEN_KEY) || "", user: null, directions: [], semesters: [], users: [] };
 
   function formatDate(value) {
     if (!value) return "";
@@ -12,6 +12,9 @@
 
   function materialHref(material) { return material.externalUrl || material.fileUrl || "/"; }
   function authHeaders() { return state.token ? { Authorization: "Bearer " + state.token } : {}; }
+  function escapeHtml(value) {
+    return String(value ?? "").replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]);
+  }
   function availableDirections() {
     if (!state.token) return [];
     if (state.user?.role === "ADMIN") return state.directions;
@@ -28,7 +31,11 @@
   }
 
   async function api(path, options = {}) {
-    const response = await fetch(API_BASE + path, { ...options, credentials: "include", headers: { "Content-Type": "application/json", ...authHeaders(), ...(options.headers || {}) } });
+    const headers = { ...authHeaders(), ...(options.headers || {}) };
+    if (options.body !== undefined && !headers["Content-Type"] && !headers["content-type"]) {
+      headers["Content-Type"] = "application/json";
+    }
+    const response = await fetch(API_BASE + path, { ...options, credentials: "include", headers });
     if (!response.ok) {
       const data = await response.json().catch(() => ({}));
       throw new Error(data.message || "Backend error");
@@ -183,10 +190,16 @@
     const content = document.querySelector("[data-admin-panel-content]");
     if (!content) return;
     if (state.token) {
-      content.innerHTML = '<form class="admin-material-form"><input name="title" placeholder="Название" required><input name="description" placeholder="Описание"><select name="directionSlug" required></select><select name="semesterNumber"></select><select name="type"><option value="GUIDE">Гайд</option><option value="NOTES">Конспект</option><option value="EXAM">Экзамен</option><option value="LINKS">Ссылки</option><option value="OTHER">Другое</option></select><input name="externalUrl" type="url" placeholder="Ссылка на материал"><button type="submit">Добавить</button><button type="button" data-admin-logout>Выйти</button></form>';
+      content.innerHTML = '<div class="admin-tabs"><button type="button" class="is-active" data-admin-tab="materials">Материалы</button>' + (state.user?.role === "ADMIN" ? '<button type="button" data-admin-tab="users">Тьюторы</button>' : "") + '</div><div data-admin-tab-panel="materials"><form class="admin-material-form"><input name="title" placeholder="Название" required><input name="description" placeholder="Описание"><select name="directionSlug" required></select><select name="semesterNumber"></select><select name="type"><option value="GUIDE">Гайд</option><option value="NOTES">Конспект</option><option value="EXAM">Экзамен</option><option value="LINKS">Ссылки</option><option value="OTHER">Другое</option></select><input name="externalUrl" type="url" placeholder="Ссылка на материал"><button type="submit">Добавить</button><button type="button" data-admin-logout>Выйти</button></form></div>' + (state.user?.role === "ADMIN" ? '<div data-admin-tab-panel="users" hidden><form class="admin-user-form"><input name="name" placeholder="Имя тьютора" required><input name="email" type="email" placeholder="Почта" required><input name="password" type="text" placeholder="Пароль от 8 символов" required><div class="admin-direction-checks" data-new-user-directions></div><button type="submit">Создать тьютора</button></form><div class="admin-users-list" data-admin-users-list></div></div>' : "");
       content.querySelector(".admin-material-form").addEventListener("submit", onCreateMaterial);
       content.querySelector("[data-admin-logout]").addEventListener("click", onLogout);
+      content.querySelectorAll("[data-admin-tab]").forEach((button) => button.addEventListener("click", () => switchAdminTab(button.dataset.adminTab)));
+      const userForm = content.querySelector(".admin-user-form");
+      if (userForm) userForm.addEventListener("submit", onCreateUser);
       fillSelects();
+      fillUserDirectionChecks();
+      renderUsers();
+      if (state.user?.role === "ADMIN") loadUsers();
     } else {
       content.innerHTML = '<form class="admin-login-form"><input name="email" type="email" placeholder="Почта" autocomplete="username" required><input name="password" type="password" placeholder="Пароль" autocomplete="current-password" required><button type="submit">Войти</button></form>';
       content.querySelector(".admin-login-form").addEventListener("submit", onLogin);
@@ -195,6 +208,12 @@
     if (toggle) toggle.textContent = state.token ? "Тьюторский режим включён" : "Тьюторский режим: войти";
     const directions = availableDirections();
     setPanelStatus(state.token ? "Доступ: " + (state.user?.role === "ADMIN" ? "все направления" : directions.map((d) => d.shortName).join(", ") || "нет направлений") : "", false);
+  }
+
+  function switchAdminTab(tab) {
+    document.querySelectorAll("[data-admin-tab]").forEach((button) => button.classList.toggle("is-active", button.dataset.adminTab === tab));
+    document.querySelectorAll("[data-admin-tab-panel]").forEach((panel) => { panel.hidden = panel.dataset.adminTabPanel !== tab; });
+    if (tab === "users") loadUsers();
   }
 
   function fillSelects() {
@@ -209,6 +228,41 @@
     if (submit) submit.disabled = directions.length === 0;
   }
 
+  function directionCheckboxes(selected = []) {
+    const selectedSet = new Set(selected);
+    return state.directions.map((direction) => '<label><input type="checkbox" name="directionSlugs" value="' + escapeHtml(direction.slug) + '"' + (selectedSet.has(direction.slug) ? " checked" : "") + '> <span>' + escapeHtml(direction.shortName) + '</span></label>').join("");
+  }
+
+  function fillUserDirectionChecks() {
+    const target = document.querySelector("[data-new-user-directions]");
+    if (target) target.innerHTML = directionCheckboxes(["pi"]);
+  }
+
+  async function loadUsers() {
+    if (state.user?.role !== "ADMIN") return;
+    try {
+      state.users = await api("/api/admin/users");
+      renderUsers();
+    } catch (error) {
+      setPanelStatus(error.message, true);
+    }
+  }
+
+  function renderUsers() {
+    const list = document.querySelector("[data-admin-users-list]");
+    if (!list) return;
+    if (!state.users.length) {
+      list.innerHTML = '<p class="admin-empty">Тьюторов пока нет.</p>';
+      return;
+    }
+    list.innerHTML = state.users.map((user) => {
+      const selected = (user.directions || []).map((direction) => direction.slug);
+      return '<article class="admin-user-card" data-user-id="' + escapeHtml(user.id) + '"><div class="admin-user-head"><strong>' + escapeHtml(user.name) + '</strong><small>' + escapeHtml(user.email) + '</small></div><span class="admin-user-role">' + (user.role === "ADMIN" ? "Админ" : "Тьютор") + '</span><div class="admin-direction-checks">' + directionCheckboxes(selected) + '</div><div class="admin-user-actions"><button type="button" data-save-user>Сохранить доступ</button><button type="button" data-toggle-user>' + (user.isActive ? "Отключить" : "Включить") + '</button></div></article>';
+    }).join("");
+    list.querySelectorAll("[data-save-user]").forEach((button) => button.addEventListener("click", onSaveUserAccess));
+    list.querySelectorAll("[data-toggle-user]").forEach((button) => button.addEventListener("click", onToggleUser));
+  }
+
   async function onLogin(event) {
     event.preventDefault(); const form = new FormData(event.currentTarget);
     try { const data = await api("/api/auth/login", { method: "POST", body: JSON.stringify({ email: form.get("email"), password: form.get("password") }) }); state.token = data.accessToken; state.user = data.user; localStorage.setItem(TOKEN_KEY, state.token); refreshAdminPanel(); await loadMaterials(); }
@@ -219,6 +273,63 @@
     event.preventDefault(); const form = new FormData(event.currentTarget); const semester = form.get("semesterNumber");
     try { await api("/api/admin/materials", { method: "POST", body: JSON.stringify({ title: form.get("title"), description: form.get("description") || undefined, directionSlug: form.get("directionSlug"), semesterNumber: semester ? Number(semester) : undefined, type: form.get("type"), externalUrl: form.get("externalUrl") || undefined }) }); event.currentTarget.reset(); setPanelStatus("Материал добавлен", false); await loadMaterials(); }
     catch (error) { setPanelStatus(error.message, true); }
+  }
+
+  async function onCreateUser(event) {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const data = new FormData(form);
+    const directionSlugs = data.getAll("directionSlugs");
+    try {
+      await api("/api/admin/users", {
+        method: "POST",
+        body: JSON.stringify({
+          name: data.get("name"),
+          email: data.get("email"),
+          password: data.get("password"),
+          role: "TUTOR",
+          directionSlugs
+        })
+      });
+      form.reset();
+      fillUserDirectionChecks();
+      setPanelStatus("Тьютор создан", false);
+      await loadUsers();
+    } catch (error) {
+      setPanelStatus(error.message, true);
+    }
+  }
+
+  async function onSaveUserAccess(event) {
+    const card = event.currentTarget.closest("[data-user-id]");
+    const user = state.users.find((item) => item.id === card?.dataset.userId);
+    if (!card || !user) return;
+    const directionSlugs = Array.from(card.querySelectorAll('input[name="directionSlugs"]:checked')).map((input) => input.value);
+    try {
+      await api("/api/admin/users/" + user.id, { method: "PATCH", body: JSON.stringify({ directionSlugs }) });
+      setPanelStatus("Доступ обновлён", false);
+      await loadUsers();
+    } catch (error) {
+      setPanelStatus(error.message, true);
+    }
+  }
+
+  async function onToggleUser(event) {
+    const card = event.currentTarget.closest("[data-user-id]");
+    const user = state.users.find((item) => item.id === card?.dataset.userId);
+    if (!card || !user) return;
+    try {
+      if (user.isActive) {
+        await api("/api/admin/users/" + user.id + "/disable", { method: "POST" });
+        setPanelStatus("Тьютор отключён", false);
+      } else {
+        await api("/api/admin/users/" + user.id, { method: "PATCH", body: JSON.stringify({ isActive: true }) });
+        setPanelStatus("Тьютор включён", false);
+      }
+      await loadUsers();
+    } catch (error) {
+      setPanelStatus(error.message, true);
+    }
   }
 
   async function onLogout() { try { await api("/api/auth/logout", { method: "POST" }); } catch (_error) {} state.token = ""; state.user = null; localStorage.removeItem(TOKEN_KEY); refreshAdminPanel(); await loadMaterials(); }
