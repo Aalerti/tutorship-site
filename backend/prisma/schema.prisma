@@ -1,0 +1,177 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ADMIN
+  TUTOR
+}
+
+enum MaterialType {
+  GUIDE
+  NOTES
+  EXAM
+  LINKS
+  OTHER
+}
+
+enum MaterialStatus {
+  DRAFT
+  PUBLISHED
+  HIDDEN
+  DELETED
+}
+
+enum AttachmentKind {
+  PDF
+  DOC
+  IMAGE
+  ARCHIVE
+  LINK
+  OTHER
+}
+
+model User {
+  id           String     @id @default(cuid())
+  email        String     @unique
+  passwordHash String
+  name         String
+  role         UserRole   @default(TUTOR)
+  isActive     Boolean    @default(true)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  materials    Material[]
+  auditLogs    AuditLog[]
+  directions   UserDirection[]
+}
+
+model Direction {
+  id          String     @id @default(cuid())
+  slug        String     @unique
+  shortName   String
+  fullName    String
+  description String?
+  isActive    Boolean    @default(true)
+  sortOrder   Int        @default(0)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  materials   Material[]
+  subjects    Subject[]
+  tutors      UserDirection[]
+}
+
+model UserDirection {
+  userId      String
+  directionId String
+  createdAt   DateTime @default(now())
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  direction Direction @relation(fields: [directionId], references: [id], onDelete: Cascade)
+
+  @@id([userId, directionId])
+  @@index([directionId])
+}
+
+model Semester {
+  id          String     @id @default(cuid())
+  number      Int        @unique
+  title       String
+  description String?
+  sortOrder   Int        @default(0)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  materials   Material[]
+}
+
+model Subject {
+  id          String     @id @default(cuid())
+  slug        String
+  title       String
+  shortTitle  String?
+  description String?
+  directionId String
+  sortOrder   Int        @default(0)
+  isActive    Boolean    @default(true)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  direction   Direction  @relation(fields: [directionId], references: [id])
+  materials   Material[]
+
+  @@unique([directionId, slug])
+  @@index([directionId, sortOrder])
+}
+
+model Material {
+  id          String       @id @default(cuid())
+  title       String
+  slug        String       @unique
+  description String?
+  content     String?
+  type        MaterialType @default(GUIDE)
+  status      MaterialStatus @default(DRAFT)
+  directionId String
+  semesterId  String?
+  subjectId   String?
+  authorId    String?
+  coverImageUrl String?
+  externalUrl String?
+  fileUrl     String?
+  publishedAt DateTime?
+  deletedAt   DateTime?
+  deletedBy   String?
+  archivedAt  DateTime?
+  archivedBy  String?
+  isPinned    Boolean      @default(false)
+  sortOrder   Int          @default(0)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  direction   Direction    @relation(fields: [directionId], references: [id])
+  semester    Semester?    @relation(fields: [semesterId], references: [id])
+  subject     Subject?     @relation(fields: [subjectId], references: [id])
+  author      User?        @relation(fields: [authorId], references: [id])
+  attachments MaterialAttachment[]
+
+  @@index([directionId, status, isPinned, sortOrder])
+  @@index([directionId, archivedAt])
+  @@index([semesterId])
+  @@index([subjectId])
+  @@index([type])
+}
+
+model MaterialAttachment {
+  id         String         @id @default(cuid())
+  materialId String
+  title      String
+  url        String
+  kind       AttachmentKind @default(LINK)
+  sortOrder  Int            @default(0)
+  createdAt  DateTime       @default(now())
+
+  material   Material       @relation(fields: [materialId], references: [id], onDelete: Cascade)
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  userId     String?
+  action     String
+  entityType String
+  entityId   String
+  before     Json?
+  after      Json?
+  createdAt  DateTime @default(now())
+
+  user       User?    @relation(fields: [userId], references: [id])
+
+  @@index([entityType, entityId])
+  @@index([userId])
+}

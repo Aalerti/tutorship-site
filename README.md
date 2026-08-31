@@ -7,14 +7,44 @@
 
 1. **Скопируйте репозиторий**
 ```bash
-git clone --recursive git@github.com:Chertilas-and-Co/Tutorship2025.git 
+git clone --recursive git@github.com:Chertilas-and-Co/Tutorship2025.git
 ```
-2. Запустите c помощью *docker compose up* 
+2. Подготовьте локальные переменные окружения:
+```bash
+cp .env.example .env
+```
+Для production поменяйте `NODE_ENV=production`, домены, пароль Postgres и оба JWT-секрета.
+
+3. Запустите с помощью *docker compose up*
 ```bash
 cd Tutorship2025
-docker compose up
+docker compose up --build
 ```
 Сайт будет поднят на http://localhost:1313
+
+Backend доступен напрямую на http://localhost:4000 и через тот же origin сайта по `/api`.
+
+## Деплой
+
+1. На сервере заполните `.env` на основе `.env.example`.
+2. Для production используйте реальные значения:
+```bash
+NODE_ENV=production
+PUBLIC_SITE_URL=https://se-tutorship.ru
+HUGO_BASEURL=https://se-tutorship.ru
+COOKIE_SECURE=true
+JWT_ACCESS_SECRET=<случайная строка от 32 символов>
+JWT_REFRESH_SECRET=<другая случайная строка от 32 символов>
+ADMIN_EMAIL=<почта первого админа>
+ADMIN_PASSWORD=<сильный пароль первого админа>
+POSTGRES_PASSWORD=<сильный пароль>
+```
+3. Запустите:
+```bash
+./deploy.sh
+```
+
+Скрипт подтянет submodules, соберёт Docker-образы, применит Prisma migrations при старте backend, заполнит базу через seed и поднимет сервисы через Docker Compose.
 
 ## Добавление новых материалов
 

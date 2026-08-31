@@ -1,0 +1,31 @@
+{{ define "body-class" }}article-page markdown-view-page{{ end }}
+
+{{ define "main" }}
+<article class="main-article markdown-reader">
+  <header class="article-header">
+    <div class="article-details">
+      <div class="article-title-wrapper">
+        <h1 class="article-title" data-reader-title>{{ .Title }}</h1>
+        <p class="article-subtitle" data-reader-description>{{ .Description }}</p>
+      </div>
+    </div>
+  </header>
+
+  <section class="article-content markdown-reader-content" data-markdown-content>
+    <p>Загружаю материал...</p>
+  </section>
+</article>
+
+{{ with .Site.Params.apiBase }}
+<script>
+  window.TUTORSHIP_API_BASE = {{ . | jsonify | safeJS }};
+</script>
+{{ else }}
+{{ if hugo.IsServer }}
+<script>
+  window.TUTORSHIP_API_BASE = "http://localhost:4000";
+</script>
+{{ end }}
+{{ end }}
+<script src="/js/material-reader.js?v=20260830-2" defer></script>
+{{ end }}
