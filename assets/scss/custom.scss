@@ -67,6 +67,12 @@ html {
   scroll-behavior: smooth;
 }
 
+@media (min-width: 1180px) {
+  html {
+    font-size: 68.75%;
+  }
+}
+
 body {
   min-height: 100vh;
   background-color: #c9aa8f;
@@ -1944,6 +1950,12 @@ a {
   box-shadow: var(--shadow-l1);
 }
 
+@media (max-width: 760px) {
+  .site-footer .scroll-to-top {
+    display: none;
+  }
+}
+
 @keyframes fadeInUp {
   from {
     opacity: 0;
@@ -3475,8 +3487,24 @@ body {
 
 @media (max-width: 760px) {
   .admin-panel {
-    right: 12px;
-    bottom: 76px;
+    right: 10px;
+    bottom: calc(10px + env(safe-area-inset-bottom));
+    max-width: calc(100vw - 20px);
+  }
+
+  .admin-panel-toggle {
+    min-width: 0;
+    max-width: 190px;
+    padding: 0.58rem 0.72rem;
+    font-size: 1rem;
+    line-height: 1.15;
+    white-space: nowrap;
+  }
+
+  .admin-panel-body {
+    width: calc(100vw - 20px);
+    max-height: calc(100dvh - 92px);
+    overflow: auto;
   }
 }
 
