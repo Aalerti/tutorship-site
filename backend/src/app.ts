@@ -10,6 +10,7 @@ import { authRoutes } from "./modules/auth/auth.routes.js";
 import { directionRoutes } from "./modules/directions/directions.routes.js";
 import { materialRoutes } from "./modules/materials/materials.routes.js";
 import { semesterRoutes } from "./modules/semesters/semesters.routes.js";
+import { subjectRoutes } from "./modules/subjects/subjects.routes.js";
 import { uploadRoutes } from "./modules/uploads/uploads.routes.js";
 import { userRoutes } from "./modules/users/users.routes.js";
 
@@ -51,6 +52,7 @@ export async function buildApp() {
   await app.register(authRoutes, { prefix: "/api/auth" });
   await app.register(directionRoutes, { prefix: "/api/directions" });
   await app.register(semesterRoutes, { prefix: "/api/semesters" });
+  await app.register(subjectRoutes, { prefix: "/api/subjects" });
   await app.register(materialRoutes, { prefix: "/api" });
   await app.register(uploadRoutes, { prefix: "/api/admin/uploads" });
   await app.register(userRoutes, { prefix: "/api/admin/users" });

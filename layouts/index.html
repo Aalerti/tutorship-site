@@ -68,6 +68,32 @@
 
 {{ partial "group-picker.html" . }}
 
+<section class="quick-catalog" data-global-catalog aria-label="Поиск материалов">
+  <form class="quick-catalog-form">
+    <input name="search" type="search" placeholder="Найти материал, предмет или экзамен">
+    <select name="direction">
+      {{ range .Site.Data.groups }}
+        <option value="{{ .code }}">{{ .short }}</option>
+      {{ end }}
+    </select>
+    <select name="semester">
+      <option value="">Все семестры</option>
+      {{ range seq 1 8 }}
+        <option value="{{ . }}">{{ . }} семестр</option>
+      {{ end }}
+    </select>
+    <select name="type">
+      <option value="">Все типы</option>
+      <option value="NOTES">Конспекты</option>
+      <option value="EXAM">Экзамены и программы</option>
+      <option value="GUIDE">Гайды</option>
+      <option value="LINKS">Ссылки</option>
+      <option value="OTHER">Другое</option>
+    </select>
+    <button type="submit">Найти</button>
+  </form>
+</section>
+
 
 
 <section class="intro-zone" aria-label="Что внутри курса">
@@ -121,7 +147,18 @@
 
 {{ end }}
 
-<script src="/js/materials-api.js" defer></script>
+{{ with .Site.Params.apiBase }}
+<script>
+  window.TUTORSHIP_API_BASE = {{ . | jsonify | safeJS }};
+</script>
+{{ else }}
+{{ if hugo.IsServer }}
+<script>
+  window.TUTORSHIP_API_BASE = "http://localhost:4000";
+</script>
+{{ end }}
+{{ end }}
+<script src="/js/materials-api.js?v=20260830-5" defer></script>
 
 <section class="years-grid" id="archive">
   <a class="year-card" href="/posts/2025/">

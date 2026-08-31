@@ -4,6 +4,7 @@ import { slugify } from "../../utils/slug.js";
 type MaterialListInput = {
   direction?: string;
   semester?: number;
+  subject?: string;
   type?: Prisma.EnumMaterialTypeFilter["equals"];
   search?: string;
   limit: number;
@@ -21,6 +22,7 @@ type MaterialCreateInput = {
   status?: "DRAFT" | "PUBLISHED" | "HIDDEN" | "DELETED";
   directionSlug: string;
   semesterNumber?: number;
+  subjectSlug?: string;
   authorId?: string;
   coverImageUrl?: string;
   externalUrl?: string;
@@ -60,6 +62,7 @@ async function makeUniqueSlug(prisma: PrismaClient, base: string, ignoredId?: st
 const materialInclude = {
   direction: true,
   semester: true,
+  subject: true,
   author: {
     select: {
       id: true,
@@ -93,6 +96,10 @@ export async function listMaterials(prisma: PrismaClient, input: MaterialListInp
     where.semester = { number: input.semester };
   }
 
+  if (input.subject) {
+    where.subject = { slug: input.subject };
+  }
+
   if (input.type) {
     where.type = input.type;
   }
@@ -101,7 +108,9 @@ export async function listMaterials(prisma: PrismaClient, input: MaterialListInp
     where.OR = [
       { title: { contains: input.search, mode: "insensitive" } },
       { description: { contains: input.search, mode: "insensitive" } },
-      { content: { contains: input.search, mode: "insensitive" } }
+      { content: { contains: input.search, mode: "insensitive" } },
+      { subject: { title: { contains: input.search, mode: "insensitive" } } },
+      { subject: { shortTitle: { contains: input.search, mode: "insensitive" } } }
     ];
   }
 
@@ -157,6 +166,16 @@ export async function createMaterial(prisma: PrismaClient, input: MaterialCreate
   const semester = input.semesterNumber
     ? await prisma.semester.findUniqueOrThrow({ where: { number: input.semesterNumber } })
     : null;
+  const subject = input.subjectSlug
+    ? await prisma.subject.findUniqueOrThrow({
+        where: {
+          directionId_slug: {
+            directionId: direction.id,
+            slug: input.subjectSlug
+          }
+        }
+      })
+    : null;
   const slug = input.slug
     ? await makeUniqueSlug(prisma, input.slug)
     : await makeUniqueSlug(prisma, input.title);
@@ -172,6 +191,7 @@ export async function createMaterial(prisma: PrismaClient, input: MaterialCreate
       status,
       directionId: direction.id,
       semesterId: semester?.id,
+      subjectId: subject?.id,
       authorId: input.authorId,
       coverImageUrl: input.coverImageUrl,
       externalUrl: input.externalUrl,
@@ -195,6 +215,16 @@ export async function updateMaterial(prisma: PrismaClient, id: string, input: Ma
   const semester = input.semesterNumber
     ? await prisma.semester.findUniqueOrThrow({ where: { number: input.semesterNumber } })
     : null;
+  const subject = input.subjectSlug && (direction || existing.directionId)
+    ? await prisma.subject.findUniqueOrThrow({
+        where: {
+          directionId_slug: {
+            directionId: direction?.id ?? existing.directionId,
+            slug: input.subjectSlug
+          }
+        }
+      })
+    : null;
 
   return prisma.material.update({
     where: { id },
@@ -207,6 +237,7 @@ export async function updateMaterial(prisma: PrismaClient, id: string, input: Ma
       status: input.status,
       directionId: direction?.id,
       semesterId: input.semesterNumber === undefined ? undefined : semester?.id ?? null,
+      subjectId: input.subjectSlug !== undefined ? subject?.id ?? null : input.directionSlug ? null : undefined,
       coverImageUrl: input.coverImageUrl,
       externalUrl: input.externalUrl,
       fileUrl: input.fileUrl,
@@ -231,6 +262,14 @@ export async function setMaterialStatus(prisma: PrismaClient, id: string, status
       status,
       publishedAt: status === MaterialStatus.PUBLISHED ? new Date() : undefined
     },
+    include: materialInclude
+  });
+}
+
+export async function setMaterialPinned(prisma: PrismaClient, id: string, isPinned: boolean) {
+  return prisma.material.update({
+    where: { id },
+    data: { isPinned },
     include: materialInclude
   });
 }

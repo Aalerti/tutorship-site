@@ -846,6 +846,167 @@ a {
   background: rgba(255, 250, 241, 0.18);
 }
 
+.quick-catalog {
+  position: relative;
+  z-index: 3;
+  width: unquote("min(1180px, calc(100% - 3rem))");
+  margin: 2.4rem auto 4.4rem;
+  font-family: "Nunito", var(--base-font-family), -apple-system, sans-serif;
+}
+
+.quick-catalog-form {
+  display: grid;
+  grid-template-columns: minmax(220px, 1.3fr) 0.55fr 0.75fr 0.9fr auto;
+  gap: 0.75rem;
+  align-items: center;
+  padding: 1rem;
+  border: 1px solid rgba(111, 81, 63, 0.15);
+  border-radius: 8px;
+  background: rgba(255, 250, 241, 0.78);
+  box-shadow: 0 16px 36px rgba(77, 55, 43, 0.12);
+}
+
+.quick-catalog input,
+.quick-catalog select,
+.quick-catalog button {
+  width: 100%;
+  min-height: 42px;
+  border: 1px solid rgba(111, 81, 63, 0.18);
+  border-radius: 8px;
+  background: rgba(255, 250, 241, 0.9);
+  color: var(--tutorship-text);
+  padding: 0.72rem 0.85rem;
+  font: inherit;
+  font-size: 1.22rem;
+  font-weight: 900;
+}
+
+.quick-catalog button {
+  min-width: 92px;
+  background: var(--tutorship-cocoa);
+  color: #fffaf1;
+  cursor: pointer;
+}
+
+.material-catalog {
+  display: grid;
+  gap: 0.8rem;
+  margin-bottom: 1.2rem;
+  padding: 1rem;
+  border: 1px solid rgba(111, 81, 63, 0.14);
+  border-radius: 8px;
+  background: rgba(255, 250, 241, 0.74);
+  box-shadow: 0 12px 28px rgba(77, 55, 43, 0.1);
+  font-family: "Nunito", var(--base-font-family), -apple-system, sans-serif;
+}
+
+.catalog-search input,
+.catalog-filters select,
+.catalog-filters button {
+  width: 100%;
+  min-height: 42px;
+  border: 1px solid rgba(111, 81, 63, 0.18);
+  border-radius: 8px;
+  background: rgba(255, 250, 241, 0.86);
+  color: var(--tutorship-text);
+  padding: 0.72rem 0.85rem;
+  font: inherit;
+  font-size: 1.25rem;
+  font-weight: 800;
+}
+
+.catalog-search input:focus,
+.catalog-filters select:focus {
+  outline: 2px solid rgba(185, 121, 111, 0.28);
+  border-color: rgba(143, 107, 80, 0.34);
+}
+
+.catalog-filters {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.65rem;
+}
+
+.catalog-filters button {
+  background: rgba(223, 226, 207, 0.68);
+  color: var(--tutorship-cocoa);
+  cursor: pointer;
+}
+
+.catalog-section {
+  margin-top: 1.2rem;
+}
+
+.material-shelf {
+  margin-top: 1.35rem;
+  padding: 1rem;
+  border: 1px solid rgba(111, 81, 63, 0.14);
+  border-radius: 8px;
+  background: rgba(255, 250, 241, 0.2);
+}
+
+.material-shelf-current {
+  background: rgba(255, 250, 241, 0.28);
+}
+
+.material-shelf-pinned {
+  background:
+    linear-gradient(135deg, rgba(255, 250, 241, 0.46), rgba(224, 171, 102, 0.18)),
+    rgba(217, 167, 160, 0.12);
+  box-shadow: inset 0 0 0 2px rgba(224, 171, 102, 0.12);
+}
+
+.material-shelf-archive {
+  margin-top: 1.6rem;
+  background:
+    linear-gradient(135deg, rgba(246, 234, 217, 0.32), rgba(214, 184, 154, 0.22)),
+    rgba(111, 81, 63, 0.08);
+}
+
+.material-shelf-head {
+  margin-bottom: 1rem;
+}
+
+.archive-catalog {
+  margin: 0 0 1rem;
+  background: rgba(255, 250, 241, 0.55);
+  box-shadow: inset 0 0 0 2px rgba(143, 107, 80, 0.06);
+}
+
+.archive-filters {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.catalog-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 0 0 0.85rem;
+  font-family: "Nunito", var(--base-font-family), -apple-system, sans-serif;
+}
+
+.catalog-section-head h3 {
+  margin: 0;
+  color: var(--tutorship-ink);
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: 2.4rem;
+  line-height: 1;
+}
+
+.catalog-section-head span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 34px;
+  height: 30px;
+  border-radius: 999px;
+  background: rgba(217, 167, 160, 0.24);
+  color: var(--tutorship-cocoa);
+  font-size: 1.1rem;
+  font-weight: 900;
+}
+
 .section-heading {
   text-align: center;
 }
@@ -988,6 +1149,61 @@ a {
   font-family: "Cormorant Garamond", Georgia, serif;
   font-size: 3rem;
   font-weight: 700;
+  line-height: 1;
+}
+
+.material-card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin: 0 0 0.8rem;
+}
+
+.material-card-meta span {
+  position: relative;
+  z-index: 4;
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+  min-height: 24px;
+  padding: 0.22rem 0.52rem;
+  border: 1px solid rgba(111, 81, 63, 0.14);
+  border-radius: 999px;
+  background: rgba(255, 250, 241, 0.68);
+  color: var(--tutorship-cocoa);
+  font-size: 1rem;
+  font-weight: 900;
+  line-height: 1.1;
+}
+
+.material-card.is-pinned {
+  border-color: rgba(185, 121, 111, 0.34);
+  background:
+    linear-gradient(180deg, rgba(255, 250, 241, 0.94), rgba(255, 247, 236, 0.86)),
+    rgba(217, 167, 160, 0.18);
+  box-shadow: 0 22px 52px rgba(77, 55, 43, 0.18), inset 0 0 0 2px rgba(224, 171, 102, 0.16);
+}
+
+.material-card.is-pinned::after {
+  background: rgba(224, 171, 102, 0.7);
+}
+
+.material-pin-badge {
+  position: absolute;
+  top: 0.85rem;
+  right: 0.85rem;
+  z-index: 5;
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 0.22rem 0.58rem;
+  border: 1px solid rgba(111, 81, 63, 0.16);
+  border-radius: 999px;
+  background: rgba(255, 250, 241, 0.78);
+  color: var(--tutorship-cocoa);
+  font-family: "Nunito", var(--base-font-family), -apple-system, sans-serif;
+  font-size: 0.98rem;
+  font-weight: 900;
   line-height: 1;
 }
 
@@ -1868,6 +2084,28 @@ a {
 
   .board-main {
     padding: 0.5rem;
+  }
+
+  .material-catalog {
+    padding: 0.75rem;
+  }
+
+  .quick-catalog {
+    width: calc(100% - 2rem);
+    margin: 1.5rem auto 3rem;
+  }
+
+  .quick-catalog-form {
+    grid-template-columns: 1fr;
+    padding: 0.75rem;
+  }
+
+  .catalog-filters {
+    grid-template-columns: 1fr;
+  }
+
+  .catalog-section-head h3 {
+    font-size: 2rem;
   }
 
   .guides-title {
@@ -2983,7 +3221,8 @@ body {
   right: 20px;
   bottom: 92px;
   z-index: 1000;
-  width: #{'min'}(420px, calc(100vw - 40px));
+  width: auto;
+  max-width: calc(100vw - 40px);
   font-family: Nunito, var(--base-font-family), -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   color: var(--tutorship-text);
 }
@@ -3001,12 +3240,16 @@ body {
 }
 
 .admin-panel-toggle {
-  width: 100%;
-  padding: 0.9rem 1rem;
-  font-size: 1.35rem;
+  display: block;
+  width: auto;
+  min-width: 220px;
+  margin-left: auto;
+  padding: 0.72rem 0.95rem;
+  font-size: 1.18rem;
 }
 
 .admin-panel-body {
+  width: unquote("min(420px, calc(100vw - 40px))");
   margin-top: 0.8rem;
   padding: 1rem;
   border: 1px solid rgba(111, 81, 63, 0.16);
@@ -3039,6 +3282,61 @@ body {
 .admin-panel button {
   min-height: 38px;
   padding: 0.65rem 0.9rem;
+}
+
+.admin-dropzone {
+  display: grid;
+  gap: 0.25rem;
+  min-height: 76px;
+  padding: 0.9rem;
+  border: 1.5px dashed rgba(111, 81, 63, 0.28);
+  border-radius: 8px;
+  background: rgba(255, 250, 241, 0.68);
+  color: var(--tutorship-cocoa);
+  cursor: pointer;
+  text-align: center;
+  transition: background 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
+}
+
+.admin-dropzone input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.admin-dropzone span {
+  font-size: 1.18rem;
+  font-weight: 900;
+}
+
+.admin-dropzone small {
+  color: var(--tutorship-text-secondary);
+  font-size: 0.98rem;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.admin-dropzone.is-dragging {
+  border-color: rgba(143, 107, 80, 0.58);
+  background: rgba(223, 226, 207, 0.62);
+  transform: translateY(-1px);
+}
+
+.admin-dropzone.is-uploading {
+  opacity: 0.72;
+  cursor: wait;
+}
+
+.admin-dropzone.is-ready {
+  border-color: rgba(92, 130, 86, 0.42);
+  background: rgba(223, 226, 207, 0.62);
+}
+
+.admin-dropzone.is-error {
+  border-color: rgba(159, 91, 83, 0.46);
+  background: rgba(217, 167, 160, 0.18);
 }
 
 .admin-panel button:hover,
@@ -3186,7 +3484,7 @@ body {
   position: relative;
   z-index: 3;
   grid-column: 1 / -1;
-  width: #{'min'}(360px, 100%);
+  width: unquote("min(360px, 100%)");
   margin: 2rem 0 0 auto;
   font-family: Nunito, var(--base-font-family), -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }

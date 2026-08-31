@@ -32,11 +32,11 @@ curl http://localhost:4000/api/health
 Seed admin:
 
 ```text
-email: admin@tutorship.local
-password: change-me-admin
+email: value from ADMIN_EMAIL, default admin@tutorship.local
+password: value from ADMIN_PASSWORD
 ```
 
-Change this password immediately after the first local run.
+For production, `ADMIN_PASSWORD` is required and seed will fail without it.
 
 ## Public endpoints
 
@@ -74,6 +74,8 @@ Require `Authorization: Bearer <accessToken>`.
 - `POST /api/admin/materials/:id/unpublish`
 - `POST /api/admin/materials/:id/archive`
 - `POST /api/admin/materials/:id/unarchive`
+- `POST /api/admin/materials/:id/pin`
+- `POST /api/admin/materials/:id/unpin`
 - `DELETE /api/admin/materials/:id`
 - `POST /api/admin/uploads`
 - `GET /api/admin/users`

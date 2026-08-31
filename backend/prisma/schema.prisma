@@ -63,6 +63,7 @@ model Direction {
   updatedAt   DateTime   @updatedAt
 
   materials   Material[]
+  subjects    Subject[]
   tutors      UserDirection[]
 }
 
@@ -90,6 +91,25 @@ model Semester {
   materials   Material[]
 }
 
+model Subject {
+  id          String     @id @default(cuid())
+  slug        String
+  title       String
+  shortTitle  String?
+  description String?
+  directionId String
+  sortOrder   Int        @default(0)
+  isActive    Boolean    @default(true)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  direction   Direction  @relation(fields: [directionId], references: [id])
+  materials   Material[]
+
+  @@unique([directionId, slug])
+  @@index([directionId, sortOrder])
+}
+
 model Material {
   id          String       @id @default(cuid())
   title       String
@@ -100,6 +120,7 @@ model Material {
   status      MaterialStatus @default(DRAFT)
   directionId String
   semesterId  String?
+  subjectId   String?
   authorId    String?
   coverImageUrl String?
   externalUrl String?
@@ -116,12 +137,14 @@ model Material {
 
   direction   Direction    @relation(fields: [directionId], references: [id])
   semester    Semester?    @relation(fields: [semesterId], references: [id])
+  subject     Subject?     @relation(fields: [subjectId], references: [id])
   author      User?        @relation(fields: [authorId], references: [id])
   attachments MaterialAttachment[]
 
   @@index([directionId, status, isPinned, sortOrder])
   @@index([directionId, archivedAt])
   @@index([semesterId])
+  @@index([subjectId])
   @@index([type])
 }
 

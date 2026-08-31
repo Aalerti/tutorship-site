@@ -7,6 +7,7 @@ import {
   getAdminMaterial,
   getPublicMaterial,
   listMaterials,
+  setMaterialPinned,
   setMaterialStatus,
   softDeleteMaterial,
   unarchiveMaterial,
@@ -246,6 +247,52 @@ export async function materialRoutes(app: FastifyInstance) {
     await writeAuditLog(app.prisma, {
       userId: request.user.id,
       action: "material.unarchive",
+      entityType: "material",
+      entityId: id,
+      before,
+      after: material
+    });
+
+    return material;
+  });
+
+  app.post("/admin/materials/:id/pin", { preHandler: app.authenticate }, async (request, reply) => {
+    const { id } = request.params as { id: string };
+    const before = await getAdminMaterial(app.prisma, id);
+    if (!before) {
+      return reply.code(404).send({ message: "Материал не найден" });
+    }
+    if (!(await canManageMaterial(app, request.user.id, request.user.role, id))) {
+      return reply.code(403).send({ message: "Этот материал недоступен для вашего аккаунта" });
+    }
+
+    const material = await setMaterialPinned(app.prisma, id, true);
+    await writeAuditLog(app.prisma, {
+      userId: request.user.id,
+      action: "material.pin",
+      entityType: "material",
+      entityId: id,
+      before,
+      after: material
+    });
+
+    return material;
+  });
+
+  app.post("/admin/materials/:id/unpin", { preHandler: app.authenticate }, async (request, reply) => {
+    const { id } = request.params as { id: string };
+    const before = await getAdminMaterial(app.prisma, id);
+    if (!before) {
+      return reply.code(404).send({ message: "Материал не найден" });
+    }
+    if (!(await canManageMaterial(app, request.user.id, request.user.role, id))) {
+      return reply.code(403).send({ message: "Этот материал недоступен для вашего аккаунта" });
+    }
+
+    const material = await setMaterialPinned(app.prisma, id, false);
+    await writeAuditLog(app.prisma, {
+      userId: request.user.id,
+      action: "material.unpin",
       entityType: "material",
       entityId: id,
       before,

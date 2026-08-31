@@ -1,5 +1,7 @@
-.env
+.git
+.gitmodules
 .hugo_build.lock
+.env
 
 public/
 resources/
@@ -9,3 +11,6 @@ backend/.env
 backend/dist/
 backend/node_modules/
 backend/uploads/
+README.md
+TODO.md
+BACKEND_PLAN.md
