@@ -579,8 +579,9 @@
       renderUsers();
       if (state.user?.role === "ADMIN") loadUsers();
     } else {
-      content.innerHTML = '<form class="admin-login-form"><input name="email" type="email" placeholder="Почта" autocomplete="username" required><input name="password" type="password" placeholder="Пароль" autocomplete="current-password" minlength="8" required><button type="submit">Войти</button></form>';
+      content.innerHTML = '<form class="admin-login-form"><input name="email" type="email" placeholder="Почта" autocomplete="username" required><div class="admin-password-field"><input name="password" type="password" placeholder="Пароль" autocomplete="current-password" minlength="8" required><button type="button" data-toggle-password>Показать</button></div><button type="submit">Войти</button></form>';
       content.querySelector(".admin-login-form").addEventListener("submit", onLogin);
+      content.querySelector("[data-toggle-password]").addEventListener("click", onTogglePassword);
     }
     const toggle = document.querySelector(".admin-panel-toggle");
     if (toggle) toggle.textContent = state.token ? "Тьюторский режим включён" : "Тьюторский режим: войти";
@@ -662,6 +663,17 @@
     } catch (error) {
       setPanelStatus(error.message, true);
     }
+  }
+
+  function onTogglePassword(event) {
+    const button = event.currentTarget;
+    const field = button.closest(".admin-password-field");
+    const input = field?.querySelector('input[name="password"]');
+    if (!input) return;
+
+    const isHidden = input.type === "password";
+    input.type = isHidden ? "text" : "password";
+    button.textContent = isHidden ? "Скрыть" : "Показать";
   }
 
   async function onCreateMaterial(event) {
