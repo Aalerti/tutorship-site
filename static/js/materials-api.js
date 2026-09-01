@@ -579,7 +579,7 @@
       renderUsers();
       if (state.user?.role === "ADMIN") loadUsers();
     } else {
-      content.innerHTML = '<form class="admin-login-form"><input name="email" type="email" placeholder="Почта" autocomplete="username" required><input name="password" type="password" placeholder="Пароль" autocomplete="current-password" required><button type="submit">Войти</button></form>';
+      content.innerHTML = '<form class="admin-login-form"><input name="email" type="email" placeholder="Почта" autocomplete="username" required><input name="password" type="password" placeholder="Пароль" autocomplete="current-password" minlength="8" required><button type="submit">Войти</button></form>';
       content.querySelector(".admin-login-form").addEventListener("submit", onLogin);
     }
     const toggle = document.querySelector(".admin-panel-toggle");

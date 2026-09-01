@@ -12,6 +12,10 @@ if (!adminPassword) {
   throw new Error("ADMIN_PASSWORD is required when NODE_ENV=production");
 }
 
+if (adminPassword.length < 8) {
+  throw new Error("ADMIN_PASSWORD must be at least 8 characters long");
+}
+
 const directions = [
   ["pi", "ПИ", "Программная инженерия", 1],
   ["fiit", "ФИИТ", "Фундаментальная информатика и информационные технологии", 2],
