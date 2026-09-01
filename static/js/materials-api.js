@@ -94,6 +94,16 @@
   function semesterOptions() {
     return state.semesters.length ? state.semesters : fallbackSemesters;
   }
+  function materialTypeOptions(selectedType = "") {
+    return Object.entries(typeLabels).map(([type, label]) =>
+      '<option value="' + type + '"' + (type === selectedType ? " selected" : "") + '>' + escapeHtml(label) + '</option>'
+    ).join("");
+  }
+  function directionOptions(selectedSlug = "") {
+    return availableDirections().map((direction) =>
+      '<option value="' + escapeHtml(direction.slug) + '"' + (direction.slug === selectedSlug ? " selected" : "") + '>' + escapeHtml(direction.shortName) + '</option>'
+    ).join("");
+  }
   function canManageDirection(directionSlug) {
     if (!state.token) return false;
     if (state.user?.role === "ADMIN") return true;
@@ -285,13 +295,44 @@
 
     const form = document.createElement("form");
     form.className = "material-edit-form";
+    const directionSlug = material.direction?.slug || "";
+    const semesterNumber = material.semester?.number ? String(material.semester.number) : "";
     form.innerHTML =
       '<label><span>Название</span><input name="title" minlength="2" maxlength="160" required></label>' +
       '<label><span>Описание</span><textarea name="description" maxlength="500" rows="3"></textarea></label>' +
+      '<div class="material-edit-grid">' +
+      '<label><span>Направление</span><select name="directionSlug" required>' + directionOptions(directionSlug) + '</select></label>' +
+      '<label><span>Семестр</span><select name="semesterNumber"><option value="">Без семестра</option>' + semesterOptions().map((semester) => '<option value="' + semester.number + '"' + (String(semester.number) === semesterNumber ? " selected" : "") + '>' + escapeHtml(semester.title) + '</option>').join("") + '</select></label>' +
+      '<label><span>Предмет</span><select name="subjectSlug"></select></label>' +
+      '<label><span>Тип</span><select name="type">' + materialTypeOptions(material.type) + '</select></label>' +
+      '</div>' +
       '<div class="material-edit-actions"><button type="submit">Сохранить</button><button type="button" data-cancel-edit>Отмена</button></div>';
 
     form.querySelector('input[name="title"]').value = material.title || "";
     form.querySelector('textarea[name="description"]').value = material.description || "";
+    const directionSelect = form.querySelector('select[name="directionSlug"]');
+    const semesterSelect = form.querySelector('select[name="semesterNumber"]');
+    const subjectSelect = form.querySelector('select[name="subjectSlug"]');
+    let preserveOriginalSubject = true;
+    const fillSubjects = () => {
+      const subjects = subjectsForDirection(directionSelect.value, semesterSelect.value);
+      const currentSubject = subjects.some((subject) => subject.slug === subjectSelect.value)
+        ? subjectSelect.value
+        : preserveOriginalSubject ? material.subject?.slug || "" : "";
+      const selectedSubject = subjects.some((subject) => subject.slug === currentSubject) ? currentSubject : "";
+      subjectSelect.innerHTML = '<option value="">Без предмета</option>' + subjects.map((subject) => '<option value="' + escapeHtml(subject.slug) + '"' + (subject.slug === selectedSubject ? " selected" : "") + '>' + escapeHtml(subject.title || subject.shortTitle) + '</option>').join("");
+    };
+    directionSelect.addEventListener("change", () => {
+      preserveOriginalSubject = false;
+      subjectSelect.value = "";
+      fillSubjects();
+    });
+    semesterSelect.addEventListener("change", () => {
+      preserveOriginalSubject = false;
+      subjectSelect.value = "";
+      fillSubjects();
+    });
+    fillSubjects();
     form.addEventListener("click", (event) => event.stopPropagation());
     form.addEventListener("submit", async (event) => {
       event.preventDefault();
@@ -303,7 +344,11 @@
           method: "PATCH",
           body: JSON.stringify({
             title: data.get("title"),
-            description: data.get("description")
+            description: data.get("description"),
+            directionSlug: data.get("directionSlug"),
+            semesterNumber: data.get("semesterNumber") ? Number(data.get("semesterNumber")) : null,
+            subjectSlug: data.get("subjectSlug") || null,
+            type: data.get("type")
           })
         });
         setPanelStatus("Материал обновлён", false);
@@ -709,10 +754,12 @@
     }
     list.innerHTML = state.users.map((user) => {
       const selected = (user.directions || []).map((direction) => direction.slug);
-      return '<article class="admin-user-card" data-user-id="' + escapeHtml(user.id) + '"><div class="admin-user-head"><strong>' + escapeHtml(user.name) + '</strong><small>' + escapeHtml(user.email) + '</small></div><span class="admin-user-role">' + (user.role === "ADMIN" ? "Админ" : "Тьютор") + '</span><div class="admin-direction-checks">' + directionCheckboxes(selected) + '</div><div class="admin-user-actions"><button type="button" data-save-user>Сохранить доступ</button><button type="button" data-toggle-user>' + (user.isActive ? "Отключить" : "Включить") + '</button></div></article>';
+      return '<article class="admin-user-card" data-user-id="' + escapeHtml(user.id) + '"><div class="admin-user-head"><strong>' + escapeHtml(user.name) + '</strong><small>Логин: ' + escapeHtml(user.email) + '</small></div><span class="admin-user-role">' + (user.role === "ADMIN" ? "Админ" : "Тьютор") + '</span><div class="admin-direction-checks">' + directionCheckboxes(selected) + '</div><div class="admin-user-password"><label><span>Новый пароль</span><div class="admin-password-field"><input name="password" type="password" placeholder="От 8 символов" minlength="8"><button type="button" data-toggle-password>Показать</button></div></label><button type="button" data-save-user-password>Сменить пароль</button></div><div class="admin-user-actions"><button type="button" data-save-user>Сохранить доступ</button><button type="button" data-toggle-user>' + (user.isActive ? "Отключить" : "Включить") + '</button></div></article>';
     }).join("");
     list.querySelectorAll("[data-save-user]").forEach((button) => button.addEventListener("click", onSaveUserAccess));
     list.querySelectorAll("[data-toggle-user]").forEach((button) => button.addEventListener("click", onToggleUser));
+    list.querySelectorAll("[data-toggle-password]").forEach((button) => button.addEventListener("click", onTogglePassword));
+    list.querySelectorAll("[data-save-user-password]").forEach((button) => button.addEventListener("click", onSaveUserPassword));
   }
 
   async function onLogin(event) {
@@ -787,7 +834,7 @@
       });
       form.reset();
       fillUserDirectionChecks();
-      setPanelStatus("Тьютор создан", false);
+      setPanelStatus("Тьютор создан. Логин: " + data.get("email") + " Пароль: " + data.get("password"), false);
       await loadUsers();
     } catch (error) {
       setPanelStatus(error.message, true);
@@ -803,6 +850,25 @@
       await api("/api/admin/users/" + user.id, { method: "PATCH", body: JSON.stringify({ directionSlugs }) });
       setPanelStatus("Доступ обновлён", false);
       await loadUsers();
+    } catch (error) {
+      setPanelStatus(error.message, true);
+    }
+  }
+
+  async function onSaveUserPassword(event) {
+    const card = event.currentTarget.closest("[data-user-id]");
+    const user = state.users.find((item) => item.id === card?.dataset.userId);
+    const passwordInput = card?.querySelector('input[name="password"]');
+    const password = passwordInput?.value || "";
+    if (!card || !user || password.length < 8) {
+      setPanelStatus("Пароль должен быть не короче 8 символов", true);
+      return;
+    }
+
+    try {
+      await api("/api/admin/users/" + user.id, { method: "PATCH", body: JSON.stringify({ password }) });
+      passwordInput.value = "";
+      setPanelStatus("Пароль обновлён. Логин: " + user.email + " Новый пароль: " + password, false);
     } catch (error) {
       setPanelStatus(error.message, true);
     }

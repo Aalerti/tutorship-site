@@ -37,7 +37,9 @@ type MaterialCreateInput = {
   }>;
 };
 
-type MaterialUpdateInput = Partial<MaterialCreateInput> & {
+type MaterialUpdateInput = Omit<Partial<MaterialCreateInput>, "semesterNumber" | "subjectSlug"> & {
+  semesterNumber?: number | null;
+  subjectSlug?: string | null;
   replaceAttachments?: boolean;
 };
 

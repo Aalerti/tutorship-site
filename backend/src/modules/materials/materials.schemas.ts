@@ -54,5 +54,7 @@ export const materialCreateSchema = z.object({
 
 export const materialUpdateSchema = materialCreateSchema.partial().extend({
   directionSlug: z.string().trim().min(1).optional(),
+  semesterNumber: z.number().int().positive().nullable().optional(),
+  subjectSlug: z.string().trim().min(1).nullable().optional(),
   replaceAttachments: z.boolean().default(false)
 });

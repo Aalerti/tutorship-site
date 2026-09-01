@@ -3496,6 +3496,19 @@ body {
   background: rgba(216, 146, 134, 0.18);
 }
 
+.admin-user-password {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.admin-user-password label {
+  display: grid;
+  gap: 0.25rem;
+  color: var(--tutorship-cocoa);
+  font-size: 1rem;
+  font-weight: 900;
+}
+
 .admin-user-actions {
   display: grid;
   grid-template-columns: 1fr 0.8fr;
@@ -3567,11 +3580,47 @@ body {
   resize: vertical;
 }
 
+.material-edit-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.65rem;
+}
+
+.material-edit-form select {
+  width: 100%;
+  min-height: 34px;
+  border: 1px solid rgba(111, 81, 63, 0.18);
+  border-radius: 8px;
+  background: rgba(255, 247, 236, 0.92);
+  color: var(--tutorship-text);
+  padding: 0.5rem 0.62rem;
+  font: inherit;
+  font-size: 1.02rem;
+  font-weight: 800;
+}
+
 .material-edit-actions {
   display: flex;
   flex-wrap: wrap;
   justify-content: flex-end;
   gap: 0.5rem;
+}
+
+.material-edit-actions button {
+  min-height: 34px;
+  border: 1px solid rgba(111, 81, 63, 0.18);
+  border-radius: 8px;
+  background: rgba(255, 250, 241, 0.88);
+  color: var(--tutorship-cocoa);
+  padding: 0.45rem 0.7rem;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+@media (max-width: 760px) {
+  .material-edit-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 760px) {
