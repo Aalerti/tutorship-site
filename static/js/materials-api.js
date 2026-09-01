@@ -83,7 +83,9 @@
   }
   function subjectsForDirection(directionSlug) {
     const subjects = state.subjects.filter((subject) => subject.direction?.slug === directionSlug || subject.directionSlug === directionSlug);
-    return subjects.length ? subjects : fallbackSubjects[directionSlug] || [];
+    return (subjects.length ? subjects : fallbackSubjects[directionSlug] || [])
+      .slice()
+      .sort((a, b) => (a.title || a.shortTitle || "").localeCompare(b.title || b.shortTitle || "", "ru"));
   }
   function semesterOptions() {
     return state.semesters.length ? state.semesters : fallbackSemesters;
@@ -339,7 +341,7 @@
       '<div class="catalog-search"><input name="search" type="search" placeholder="Поиск по материалам, предметам и описаниям" value="' + escapeHtml(filters.search) + '"></div>' +
       '<div class="catalog-filters">' +
       '<select name="semester"><option value="">Все семестры</option>' + semesterOptions().map((semester) => '<option value="' + semester.number + '"' + (String(semester.number) === filters.semester ? " selected" : "") + '>' + escapeHtml(semester.title) + '</option>').join("") + '</select>' +
-      '<select name="subject"><option value="">Все предметы</option>' + subjects.map((subject) => '<option value="' + escapeHtml(subject.slug) + '"' + (subject.slug === filters.subject ? " selected" : "") + '>' + escapeHtml(subject.shortTitle || subject.title) + '</option>').join("") + '</select>' +
+      '<select name="subject"><option value="">Все предметы</option>' + subjects.map((subject) => '<option value="' + escapeHtml(subject.slug) + '"' + (subject.slug === filters.subject ? " selected" : "") + '>' + escapeHtml(subject.title || subject.shortTitle) + '</option>').join("") + '</select>' +
       '<select name="type"><option value="">Все типы</option>' + Object.keys(typeLabels).map((type) => '<option value="' + type + '"' + (type === filters.type ? " selected" : "") + '>' + escapeHtml(typeLabels[type]) + '</option>').join("") + '</select>' +
       '<button type="button" data-reset-filters>Сбросить</button>' +
       '</div>';
@@ -469,7 +471,7 @@
       '<div class="catalog-search"><input name="archiveSearch" type="search" placeholder="Поиск внутри архива" value="' + escapeHtml(filters.archiveSearch) + '"></div>' +
       '<div class="catalog-filters archive-filters">' +
       '<select name="archiveSemester"><option value="">Все семестры архива</option>' + semesterOptions().map((semester) => '<option value="' + semester.number + '"' + (String(semester.number) === filters.archiveSemester ? " selected" : "") + '>' + escapeHtml(semester.title) + '</option>').join("") + '</select>' +
-      '<select name="archiveSubject"><option value="">Все предметы архива</option>' + subjects.map((subject) => '<option value="' + escapeHtml(subject.slug) + '"' + (subject.slug === filters.archiveSubject ? " selected" : "") + '>' + escapeHtml(subject.shortTitle || subject.title) + '</option>').join("") + '</select>' +
+      '<select name="archiveSubject"><option value="">Все предметы архива</option>' + subjects.map((subject) => '<option value="' + escapeHtml(subject.slug) + '"' + (subject.slug === filters.archiveSubject ? " selected" : "") + '>' + escapeHtml(subject.title || subject.shortTitle) + '</option>').join("") + '</select>' +
       '<select name="archiveType"><option value="">Все типы архива</option>' + Object.keys(typeLabels).map((type) => '<option value="' + type + '"' + (type === filters.archiveType ? " selected" : "") + '>' + escapeHtml(typeLabels[type]) + '</option>').join("") + '</select>' +
       '<select name="archiveSort"><option value="newest"' + (filters.archiveSort === "newest" ? " selected" : "") + '>Сначала новые</option><option value="oldest"' + (filters.archiveSort === "oldest" ? " selected" : "") + '>Сначала старые</option><option value="title"' + (filters.archiveSort === "title" ? " selected" : "") + '>По названию</option><option value="subject"' + (filters.archiveSort === "subject" ? " selected" : "") + '>По предмету</option></select>' +
       '<button type="button" data-reset-archive-filters>Сбросить архив</button>' +
@@ -658,7 +660,7 @@
     semesterSelect.innerHTML = '<option value="">Без семестра</option>' + state.semesters.map((semester) => '<option value="' + semester.number + '">' + escapeHtml(semester.title) + '</option>').join("");
     const fillSubjects = () => {
       const subjects = subjectsForDirection(directionSelect.value);
-      subjectSelect.innerHTML = '<option value="">Без предмета</option>' + subjects.map((subject) => '<option value="' + escapeHtml(subject.slug) + '">' + escapeHtml(subject.shortTitle || subject.title) + '</option>').join("");
+      subjectSelect.innerHTML = '<option value="">Без предмета</option>' + subjects.map((subject) => '<option value="' + escapeHtml(subject.slug) + '">' + escapeHtml(subject.title || subject.shortTitle) + '</option>').join("");
     };
     directionSelect.addEventListener("change", fillSubjects);
     fillSubjects();
