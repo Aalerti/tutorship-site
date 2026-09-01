@@ -790,7 +790,8 @@
 
   async function onCreateMaterial(event) {
     event.preventDefault();
-    const form = new FormData(event.currentTarget);
+    const formElement = event.currentTarget;
+    const form = new FormData(formElement);
     const semester = form.get("semesterNumber");
     try {
       await api("/api/admin/materials", {
@@ -806,9 +807,9 @@
           fileUrl: form.get("fileUrl") || undefined
         })
       });
-      event.currentTarget.reset();
+      formElement.reset();
       fillMaterialFormSelects();
-      initMaterialUpload(event.currentTarget);
+      initMaterialUpload(formElement);
       setPanelStatus("Материал добавлен", false);
       await loadMaterials();
     } catch (error) {
