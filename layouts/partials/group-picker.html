@@ -7,7 +7,7 @@
   <div class="group-cards">
     {{ range .Site.Data.groups }}
       {{ $full := default .name .full }}
-      <div class="group-card{{ if not .ready }} soon{{ end }}" title="{{ $full }}">
+      <div class="group-card{{ if not .ready }} soon{{ end }}" data-direction-card="{{ .code }}" title="{{ $full }}">
         <a class="group-link" href="#{{ .code }}" aria-label="{{ $full }} — перейти к доске"></a>
         <span class="group-short">{{ .short }}</span>
         <span class="group-name">{{ .name }}</span>

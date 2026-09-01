@@ -113,6 +113,36 @@
     return canManageDirection(material.direction?.slug);
   }
 
+  function syncDirectionCard(direction, hasMaterials) {
+    if (!direction || !hasMaterials) return;
+    const card = Array.from(document.querySelectorAll(".group-card[data-direction-card]"))
+      .find((item) => item.dataset.directionCard === direction);
+    if (!card) return;
+
+    card.classList.remove("soon");
+
+    let link = card.querySelector(".group-link");
+    if (!link) {
+      link = document.createElement("a");
+      link.className = "group-link";
+      card.prepend(link);
+    }
+    const label = card.getAttribute("title") || card.querySelector(".group-short")?.textContent?.trim() || direction;
+    link.href = "#" + direction;
+    link.setAttribute("aria-label", label + " — перейти к доске");
+
+    const stamp = card.querySelector(".group-stamp");
+    if (stamp) {
+      stamp.className = "group-action";
+      stamp.textContent = "Открыть материалы";
+    } else if (!card.querySelector(".group-action")) {
+      const action = document.createElement("span");
+      action.className = "group-action";
+      action.textContent = "Открыть материалы";
+      card.append(action);
+    }
+  }
+
   async function api(path, options = {}) {
     const headers = { ...authHeaders(), ...(options.headers || {}) };
     const isFormData = typeof FormData !== "undefined" && options.body instanceof FormData;
@@ -352,6 +382,7 @@
           })
         });
         setPanelStatus("Материал обновлён", false);
+        syncDirectionCard(String(data.get("directionSlug") || ""), true);
         await loadMaterials();
       } catch (error) {
         setPanelStatus(error.message, true);
@@ -574,6 +605,7 @@
       ]);
       const materials = data.items || [];
       const archivedMaterials = archiveData.items || [];
+      syncDirectionCard(direction, Boolean((data.total || materials.length) || (archiveData.total || archivedMaterials.length)));
       delete board.dataset.apiFallback;
       board.innerHTML = "";
       renderCatalogControls(board, direction);
@@ -810,6 +842,7 @@
       formElement.reset();
       fillMaterialFormSelects();
       initMaterialUpload(formElement);
+      syncDirectionCard(String(form.get("directionSlug") || ""), true);
       setPanelStatus("Материал добавлен", false);
       await loadMaterials();
     } catch (error) {
