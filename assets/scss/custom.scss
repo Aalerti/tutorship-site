@@ -3527,6 +3527,53 @@ body {
   font-size: 1.05rem;
 }
 
+.material-edit-form {
+  position: relative;
+  z-index: 6;
+  display: grid;
+  gap: 0.65rem;
+  margin-top: 0.85rem;
+  padding: 0.8rem;
+  border: 1px solid rgba(111, 81, 63, 0.14);
+  border-radius: 8px;
+  background: rgba(255, 250, 241, 0.9);
+  box-shadow: inset 0 0 0 1px rgba(255, 250, 241, 0.72);
+  cursor: default;
+}
+
+.material-edit-form label {
+  display: grid;
+  gap: 0.25rem;
+  color: var(--tutorship-cocoa);
+  font-family: Nunito, var(--base-font-family), -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 0.98rem;
+  font-weight: 900;
+}
+
+.material-edit-form input,
+.material-edit-form textarea {
+  width: 100%;
+  border: 1px solid rgba(111, 81, 63, 0.18);
+  border-radius: 8px;
+  background: rgba(255, 247, 236, 0.92);
+  color: var(--tutorship-text);
+  padding: 0.58rem 0.7rem;
+  font: inherit;
+  font-size: 1.1rem;
+  font-weight: 800;
+}
+
+.material-edit-form textarea {
+  resize: vertical;
+}
+
+.material-edit-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
 @media (max-width: 760px) {
   .admin-panel {
     right: 10px;

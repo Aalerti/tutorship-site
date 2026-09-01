@@ -215,6 +215,14 @@
     if (canManageMaterial(material)) {
       const actions = document.createElement("div");
       actions.className = "material-actions";
+      const edit = document.createElement("button");
+      edit.type = "button";
+      edit.textContent = "Изменить";
+      edit.className = "material-action material-action-edit";
+      edit.addEventListener("click", (event) => {
+        event.preventDefault(); event.stopPropagation();
+        beginMaterialEdit(card, material);
+      });
       const pin = document.createElement("button");
       pin.type = "button";
       pin.textContent = material.isPinned ? "Открепить" : "Закрепить";
@@ -259,10 +267,53 @@
         await api("/api/admin/materials/" + material.id, { method: "DELETE" });
         await loadMaterials();
       });
-      actions.append(pin, archive, remove);
+      actions.append(edit, pin, archive, remove);
       card.append(actions);
     }
     return card;
+  }
+
+  function beginMaterialEdit(card, material) {
+    card.querySelector(".material-edit-form")?.remove();
+    card.classList.add("is-editing");
+
+    const form = document.createElement("form");
+    form.className = "material-edit-form";
+    form.innerHTML =
+      '<label><span>Название</span><input name="title" minlength="2" maxlength="160" required></label>' +
+      '<label><span>Описание</span><textarea name="description" maxlength="500" rows="3"></textarea></label>' +
+      '<div class="material-edit-actions"><button type="submit">Сохранить</button><button type="button" data-cancel-edit>Отмена</button></div>';
+
+    form.querySelector('input[name="title"]').value = material.title || "";
+    form.querySelector('textarea[name="description"]').value = material.description || "";
+    form.addEventListener("click", (event) => event.stopPropagation());
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const data = new FormData(form);
+      const submit = form.querySelector('button[type="submit"]');
+      submit.disabled = true;
+      try {
+        await api("/api/admin/materials/" + material.id, {
+          method: "PATCH",
+          body: JSON.stringify({
+            title: data.get("title"),
+            description: data.get("description")
+          })
+        });
+        setPanelStatus("Материал обновлён", false);
+        await loadMaterials();
+      } catch (error) {
+        setPanelStatus(error.message, true);
+        submit.disabled = false;
+      }
+    });
+    form.querySelector("[data-cancel-edit]").addEventListener("click", () => {
+      form.remove();
+      card.classList.remove("is-editing");
+    });
+
+    card.append(form);
+    form.querySelector('input[name="title"]').focus();
   }
 
   function renderEmpty(board, direction, filtered = false) {
