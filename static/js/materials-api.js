@@ -81,9 +81,13 @@
     const allowed = new Set((state.user?.directions || []).map((direction) => direction.slug));
     return state.directions.filter((direction) => allowed.has(direction.slug));
   }
-  function subjectsForDirection(directionSlug) {
+  function subjectsForDirection(directionSlug, semesterNumber = "") {
     const subjects = state.subjects.filter((subject) => subject.direction?.slug === directionSlug || subject.directionSlug === directionSlug);
     return (subjects.length ? subjects : fallbackSubjects[directionSlug] || [])
+      .filter((subject) => {
+        if (!semesterNumber || !Array.isArray(subject.semesterNumbers) || !subject.semesterNumbers.length) return true;
+        return subject.semesterNumbers.includes(Number(semesterNumber));
+      })
       .slice()
       .sort((a, b) => (a.title || a.shortTitle || "").localeCompare(b.title || b.shortTitle || "", "ru"));
   }
@@ -333,7 +337,10 @@
     const oldControls = board.querySelector("[data-catalog-controls]");
     if (oldControls) oldControls.remove();
     const filters = filterState(direction);
-    const subjects = subjectsForDirection(direction);
+    const subjects = subjectsForDirection(direction, filters.semester);
+    if (filters.subject && !subjects.some((subject) => subject.slug === filters.subject)) {
+      filters.subject = "";
+    }
     const controls = document.createElement("form");
     controls.className = "material-catalog";
     controls.dataset.catalogControls = "";
@@ -463,7 +470,10 @@
 
   function renderArchiveControls(target, direction) {
     const filters = filterState(direction);
-    const subjects = subjectsForDirection(direction);
+    const subjects = subjectsForDirection(direction, filters.archiveSemester);
+    if (filters.archiveSubject && !subjects.some((subject) => subject.slug === filters.archiveSubject)) {
+      filters.archiveSubject = "";
+    }
     const controls = document.createElement("form");
     controls.className = "material-catalog archive-catalog";
     controls.dataset.archiveControls = "";
@@ -659,10 +669,12 @@
     directionSelect.disabled = state.user?.role !== "ADMIN" && directions.length <= 1;
     semesterSelect.innerHTML = '<option value="">Без семестра</option>' + state.semesters.map((semester) => '<option value="' + semester.number + '">' + escapeHtml(semester.title) + '</option>').join("");
     const fillSubjects = () => {
-      const subjects = subjectsForDirection(directionSelect.value);
-      subjectSelect.innerHTML = '<option value="">Без предмета</option>' + subjects.map((subject) => '<option value="' + escapeHtml(subject.slug) + '">' + escapeHtml(subject.title || subject.shortTitle) + '</option>').join("");
+      const subjects = subjectsForDirection(directionSelect.value, semesterSelect.value);
+      const currentSubject = subjects.some((subject) => subject.slug === subjectSelect.value) ? subjectSelect.value : "";
+      subjectSelect.innerHTML = '<option value="">Без предмета</option>' + subjects.map((subject) => '<option value="' + escapeHtml(subject.slug) + '"' + (subject.slug === currentSubject ? " selected" : "") + '>' + escapeHtml(subject.title || subject.shortTitle) + '</option>').join("");
     };
     directionSelect.addEventListener("change", fillSubjects);
+    semesterSelect.addEventListener("change", fillSubjects);
     fillSubjects();
     const submit = form.querySelector('button[type="submit"]');
     if (submit) submit.disabled = directions.length === 0;
