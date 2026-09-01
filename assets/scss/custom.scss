@@ -84,7 +84,7 @@ body {
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  background-attachment: fixed;
+  background-attachment: scroll;
   color: var(--body-text-color);
   font-size: 1.6rem;
 }
@@ -3226,6 +3226,29 @@ body {
 
 @media (max-width: 900px) {
   .page-paper-backdrop { opacity: 0.22; }
+}
+
+@media (max-width: 760px) {
+  body::before,
+  .page-paper-backdrop,
+  .board-fragments {
+    display: none;
+  }
+
+  .board-section,
+  .archive-folder,
+  .post-card {
+    content-visibility: auto;
+    contain-intrinsic-size: 260px;
+  }
+
+  .post-card,
+  .archive-folder-cover,
+  .archive-drawer,
+  .admin-panel-body,
+  .admin-panel-toggle {
+    box-shadow: 0 10px 22px rgba(77, 55, 43, 0.1);
+  }
 }
 
 .admin-panel {
