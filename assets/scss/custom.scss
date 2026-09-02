@@ -3681,23 +3681,24 @@ body {
 
 @media (max-width: 760px) {
   .admin-panel {
-    right: 10px;
-    bottom: calc(10px + env(safe-area-inset-bottom));
+    top: calc(8px + env(safe-area-inset-top));
+    right: 8px;
+    bottom: auto;
     max-width: calc(100vw - 20px);
   }
 
   .admin-panel-toggle {
     min-width: 0;
-    max-width: 190px;
-    padding: 0.58rem 0.72rem;
-    font-size: 1rem;
+    max-width: 116px;
+    padding: 0.42rem 0.5rem;
+    font-size: 0.72rem;
     line-height: 1.15;
-    white-space: nowrap;
+    white-space: normal;
   }
 
   .admin-panel-body {
-    width: calc(100vw - 20px);
-    max-height: calc(100dvh - 92px);
+    width: calc(100vw - 16px);
+    max-height: calc(100dvh - 70px);
     overflow: auto;
   }
 }

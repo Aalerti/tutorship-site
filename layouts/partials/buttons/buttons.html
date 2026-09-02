@@ -3,11 +3,6 @@
     <button class="back-button" onclick="const groups=document.getElementById('groups'); if(groups){ history.replaceState(null, '', '/#groups'); groups.scrollIntoView({block:'start'}); } else { window.location.href='/#groups'; }">К выбору направления</button>
 </div>
 <style>
-@media (max-width: 480px) {
- .back-button{
-    display: none;
- }
-}
 .buttons {
     position: fixed;
     top: 20px;
@@ -58,5 +53,32 @@
 .back-button:active {
     background: #ead3bf;
     transform: translateY(0);
+}
+
+@media (max-width: 480px) {
+ .buttons {
+    top: calc(8px + env(safe-area-inset-top));
+    left: 8px;
+    gap: 0;
+ }
+
+ .back-button {
+    display: none;
+ }
+
+ .back-button:nth-child(2) {
+    display: block;
+    max-width: 128px;
+    padding: 8px 10px;
+    font-size: 11px;
+    line-height: 1.1;
+    white-space: normal;
+ }
+
+ .back-button:nth-child(2)::before {
+    width: 28px;
+    height: 8px;
+    top: -5px;
+ }
 }
 </style>
