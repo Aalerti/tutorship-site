@@ -4,6 +4,8 @@
       ? "http://localhost:4000"
       : "");
   const TOKEN_KEY = "TutorshipAdminToken";
+  const MOBILE_CARD_LIMIT = 12;
+  const MOBILE_CARD_STEP = 12;
   const typeLabels = {
     GUIDE: "Гайд",
     NOTES: "Конспект",
@@ -38,7 +40,8 @@
     semesters: [],
     subjects: [],
     users: [],
-    filters: new Map()
+    filters: new Map(),
+    visibleLimits: new Map()
   };
   const maxUploadSize = 50 * 1024 * 1024;
 
@@ -206,6 +209,36 @@
       });
     }
     return state.filters.get(direction);
+  }
+
+  function shouldLimitCards() {
+    return window.matchMedia("(max-width: 760px)").matches;
+  }
+
+  function visibleLimitKey(direction, shelf) {
+    return direction + ":" + shelf;
+  }
+
+  function visibleLimit(direction, shelf, total) {
+    if (!shouldLimitCards()) return total;
+    const current = state.visibleLimits.get(visibleLimitKey(direction, shelf)) || MOBILE_CARD_LIMIT;
+    return Math.min(current, total);
+  }
+
+  function resetVisibleLimits(direction, shelf = "") {
+    if (shelf) {
+      state.visibleLimits.delete(visibleLimitKey(direction, shelf));
+      return;
+    }
+    ["pinned", "current", "archive"].forEach((item) => state.visibleLimits.delete(visibleLimitKey(direction, item)));
+  }
+
+  function showMoreMaterials(direction, shelf) {
+    const key = visibleLimitKey(direction, shelf);
+    const current = state.visibleLimits.get(key) || MOBILE_CARD_LIMIT;
+    state.visibleLimits.set(key, current + MOBILE_CARD_STEP);
+    const board = boardForDirection(direction);
+    if (board) loadDirectionMaterials(board, direction);
   }
 
   function buildMaterialQuery(direction, archived = false) {
@@ -477,6 +510,7 @@
       '</div>';
     controls.addEventListener("submit", (event) => event.preventDefault());
     const refresh = () => {
+      resetVisibleLimits(direction);
       if (board.dataset.apiFallback === "true") {
         applyStaticFilters(board, direction);
       } else {
@@ -530,7 +564,6 @@
   }
 
   function renderGroupedMaterials(target, direction, materials, options = {}) {
-    const filters = filterState(direction);
     if (!materials.length) {
       if (options.emptyMessage) {
         const empty = document.createElement("p");
@@ -541,19 +574,33 @@
       return;
     }
 
+    const shelf = options.shelf || "";
+    const total = materials.length;
+    const limit = shelf ? visibleLimit(direction, shelf, total) : total;
+    const visibleMaterials = materials.slice(0, limit);
     const grouped = new Map();
-    catalogSections.forEach((section) => grouped.set(section.key, []));
+    const visibleGrouped = new Map();
+    catalogSections.forEach((section) => {
+      grouped.set(section.key, []);
+      visibleGrouped.set(section.key, []);
+    });
     materials.forEach((material) => {
       const key = grouped.has(material.type) ? material.type : "OTHER";
       grouped.get(key).push(material);
     });
+    visibleMaterials.forEach((material) => {
+      const key = visibleGrouped.has(material.type) ? material.type : "OTHER";
+      visibleGrouped.get(key).push(material);
+    });
 
     catalogSections.forEach((section) => {
-      const sectionMaterials = grouped.get(section.key) || [];
+      const sectionMaterials = visibleGrouped.get(section.key) || [];
       if (!sectionMaterials.length) return;
+      const sectionTotal = (grouped.get(section.key) || []).length;
+      const count = sectionMaterials.length === sectionTotal ? sectionTotal : sectionMaterials.length + " / " + sectionTotal;
       const catalogSection = document.createElement("section");
       catalogSection.className = "catalog-section";
-      catalogSection.innerHTML = '<div class="catalog-section-head"><h3>' + escapeHtml(section.title) + '</h3><span>' + sectionMaterials.length + '</span></div>';
+      catalogSection.innerHTML = '<div class="catalog-section-head"><h3>' + escapeHtml(section.title) + '</h3><span>' + count + '</span></div>';
       const list = document.createElement("div");
       list.className = "posts-cards board-cards";
       list.dataset.materialsList = "";
@@ -562,6 +609,15 @@
       catalogSection.append(list);
       target.append(catalogSection);
     });
+
+    if (shelf && limit < total) {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "materials-load-more";
+      button.textContent = "Показать ещё " + Math.min(MOBILE_CARD_STEP, total - limit);
+      button.addEventListener("click", () => showMoreMaterials(direction, shelf));
+      target.append(button);
+    }
   }
 
   function renderShelf(board, direction, title, count, modifier = "") {
@@ -580,7 +636,7 @@
 
     if (pinnedMaterials.length) {
       const pinnedContent = renderShelf(board, direction, "Закреплённое", pinnedMaterials.length, "material-shelf-pinned");
-      renderGroupedMaterials(pinnedContent, direction, pinnedMaterials);
+      renderGroupedMaterials(pinnedContent, direction, pinnedMaterials, { shelf: "pinned" });
     }
 
     const content = renderShelf(board, direction, "Актуальное", regularMaterials.length, "material-shelf-current");
@@ -588,7 +644,7 @@
       renderEmpty(content, direction, filtered);
       return;
     }
-    renderGroupedMaterials(content, direction, regularMaterials);
+    renderGroupedMaterials(content, direction, regularMaterials, { shelf: "current" });
   }
 
   function renderArchiveControls(target, direction) {
@@ -613,6 +669,7 @@
     controls.addEventListener("submit", (event) => event.preventDefault());
     controls.querySelectorAll("select").forEach((select) => select.addEventListener("change", () => {
       filters[select.name] = select.value;
+      resetVisibleLimits(direction, "archive");
       loadDirectionMaterials(target.closest(".board-main"), direction);
     }));
 
@@ -622,12 +679,14 @@
       clearTimeout(searchTimer);
       searchTimer = setTimeout(() => {
         filters.archiveSearch = searchInput.value.trim();
+        resetVisibleLimits(direction, "archive");
         loadDirectionMaterials(target.closest(".board-main"), direction);
       }, 250);
     });
 
     controls.querySelector("[data-reset-archive-filters]").addEventListener("click", () => {
       Object.assign(filters, { archiveSearch: "", archiveSemester: "", archiveSubject: "", archiveType: "", archiveSort: "newest" });
+      resetVisibleLimits(direction, "archive");
       loadDirectionMaterials(target.closest(".board-main"), direction);
     });
 
@@ -639,6 +698,7 @@
     const content = renderShelf(board, direction, "Архив", filteredMaterials.length + " / " + total, "material-shelf-archive");
     renderArchiveControls(content, direction);
     renderGroupedMaterials(content, direction, filteredMaterials, {
+      shelf: "archive",
       cardOptions: { archived: true },
       emptyMessage: total ? "В архиве по этим фильтрам ничего не нашлось." : "В архиве пока пусто."
     });
@@ -675,15 +735,6 @@
 
   async function loadMaterials() {
     const boards = Array.from(document.querySelectorAll(".board-main[data-direction]"));
-    const useLazyLoading = window.matchMedia("(max-width: 760px)").matches;
-    if (!useLazyLoading) {
-      await Promise.all(boards.map(async (board) => {
-        const direction = board.dataset.direction;
-        if (direction) await loadDirectionMaterials(board, direction);
-      }));
-      return;
-    }
-
     const activeHash = decodeURIComponent(window.location.hash || "").replace(/^#/, "");
     const firstBoard = boards.find((board) => board.dataset.direction === activeHash) || boards[0];
     if (firstBoard?.dataset.direction) await loadDirectionMaterials(firstBoard, firstBoard.dataset.direction);
@@ -707,7 +758,7 @@
         }
         observer.unobserve(board);
       });
-    }, { rootMargin: "700px 0px" });
+    }, { rootMargin: "900px 0px" });
 
     boards.forEach((board) => {
       if (board !== firstBoard) observer.observe(board);
@@ -1055,8 +1106,17 @@
     });
   }
 
+  function initDirectionHashLoading() {
+    window.addEventListener("hashchange", () => {
+      const direction = decodeURIComponent(window.location.hash || "").replace(/^#/, "");
+      const board = boardForDirection(direction);
+      if (board?.dataset.materialsLoaded !== "true") loadDirectionMaterials(board, direction);
+    });
+  }
+
   async function bootstrap() {
     initGlobalCatalog();
+    initDirectionHashLoading();
     renderAdminPanel();
     if (state.token) {
       try {
