@@ -4,6 +4,7 @@ import { basename, extname, join } from "node:path";
 import { pipeline } from "node:stream/promises";
 import type { FastifyInstance } from "fastify";
 import { env } from "../../config/env.js";
+import { MAX_UPLOAD_SIZE } from "../../config/uploads.js";
 
 const allowedExtensions = new Set([".pdf", ".doc", ".docx", ".odt", ".md", ".png", ".jpg", ".jpeg", ".webp", ".zip", ".ppt", ".pptx", ".apkg"]);
 
@@ -29,6 +30,17 @@ function safeFileName(name: string) {
   return `${Date.now()}-${base || "file"}${ext}`;
 }
 
+function isFileTooLarge(error: unknown) {
+  if (!error || typeof error !== "object") return false;
+  const code = "code" in error ? String(error.code) : "";
+  const message = "message" in error ? String(error.message) : "";
+  return code === "FST_REQ_FILE_TOO_LARGE" || message.toLowerCase().includes("file size");
+}
+
+function formatMegabytes(bytes: number) {
+  return Math.floor(bytes / 1024 / 1024);
+}
+
 export async function uploadRoutes(app: FastifyInstance) {
   app.get("/:filename", async (request, reply) => {
     const { filename } = request.params as { filename: string };
@@ -49,7 +61,15 @@ export async function uploadRoutes(app: FastifyInstance) {
   });
 
   app.post("/", { preHandler: app.authenticate }, async (request, reply) => {
-    const file = await request.file();
+    let file;
+    try {
+      file = await request.file();
+    } catch (error) {
+      if (isFileTooLarge(error)) {
+        return reply.code(413).send({ message: `Файл слишком большой. Максимум ${formatMegabytes(MAX_UPLOAD_SIZE)} МБ.` });
+      }
+      throw error;
+    }
 
     if (!file) {
       return reply.code(400).send({ message: "Файл не передан" });
@@ -65,7 +85,14 @@ export async function uploadRoutes(app: FastifyInstance) {
     const filename = safeFileName(file.filename);
     const path = join(env.UPLOAD_DIR, filename);
 
-    await pipeline(file.file, createWriteStream(path));
+    try {
+      await pipeline(file.file, createWriteStream(path));
+    } catch (error) {
+      if (isFileTooLarge(error)) {
+        return reply.code(413).send({ message: `Файл слишком большой. Максимум ${formatMegabytes(MAX_UPLOAD_SIZE)} МБ.` });
+      }
+      throw error;
+    }
 
     return {
       url: `/api/admin/uploads/${filename}`,

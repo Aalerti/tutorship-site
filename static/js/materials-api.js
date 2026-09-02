@@ -40,6 +40,7 @@
     users: [],
     filters: new Map()
   };
+  const maxUploadSize = 50 * 1024 * 1024;
 
   function formatDate(value) {
     if (!value) return "";
@@ -178,8 +179,14 @@
     }
     const response = await fetch(API_BASE + path, { ...options, credentials: "include", headers });
     if (!response.ok) {
-      const data = await response.json().catch(() => ({}));
-      throw new Error(data.message || "Backend error");
+      const text = await response.text().catch(() => "");
+      let data = {};
+      try {
+        data = text ? JSON.parse(text) : {};
+      } catch (_error) {
+        data = {};
+      }
+      throw new Error(data.message || text || "Ошибка backend: " + response.status);
     }
     return response.json();
   }
@@ -720,6 +727,15 @@
     const title = form.querySelector("[data-upload-title]");
     const status = form.querySelector("[data-upload-status]");
     const fileUrlInput = form.querySelector('input[name="fileUrl"]');
+    if (file.size > maxUploadSize) {
+      const message = "Файл слишком большой. Максимум 50 МБ.";
+      dropzone.classList.remove("is-uploading", "is-ready");
+      dropzone.classList.add("is-error");
+      title.textContent = file.name;
+      status.textContent = message;
+      setPanelStatus(message, true);
+      return;
+    }
     const body = new FormData();
     body.append("file", file);
 
