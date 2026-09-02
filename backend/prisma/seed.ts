@@ -666,7 +666,8 @@ async function main() {
       semesterNumber: 1,
       type: MaterialType.GUIDE,
       publishedAt: new Date("2026-08-30T00:00:00.000Z"),
-      sortOrder: 4
+      sortOrder: 4,
+      archived: true
     },
     {
       title: "Мат. анализ: программа экзамена",

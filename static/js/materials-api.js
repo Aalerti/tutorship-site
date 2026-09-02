@@ -113,6 +113,19 @@
     return canManageDirection(material.direction?.slug);
   }
 
+  function boardForDirection(direction) {
+    return Array.from(document.querySelectorAll(".board-main[data-direction]"))
+      .find((board) => board.dataset.direction === direction);
+  }
+
+  async function reloadMaterialDirections(...directions) {
+    const uniqueDirections = Array.from(new Set(directions.filter(Boolean)));
+    await Promise.all(uniqueDirections.map(async (direction) => {
+      const board = boardForDirection(direction);
+      if (board) await loadDirectionMaterials(board, direction);
+    }));
+  }
+
   function syncDirectionCard(direction, hasMaterials) {
     if (!direction || !hasMaterials) return;
     const card = Array.from(document.querySelectorAll(".group-card[data-direction-card]"))
@@ -280,7 +293,7 @@
         try {
           await api("/api/admin/materials/" + material.id + "/" + action, { method: "POST" });
           setPanelStatus(material.isPinned ? "Материал откреплён" : "Материал закреплён", false);
-          await loadMaterials();
+          await reloadMaterialDirections(material.direction?.slug);
         } catch (error) {
           setPanelStatus(error.message, true);
           pin.disabled = false;
@@ -297,7 +310,7 @@
         try {
           await api("/api/admin/materials/" + material.id + "/" + action, { method: "POST" });
           setPanelStatus(options.archived ? "Материал вернулся на доску" : "Материал отправлен в архив", false);
-          await loadMaterials();
+          await reloadMaterialDirections(material.direction?.slug);
         } catch (error) {
           setPanelStatus(error.message, true);
           archive.disabled = false;
@@ -311,7 +324,7 @@
         event.preventDefault(); event.stopPropagation();
         if (!confirm("Удалить материал «" + material.title + "»?")) return;
         await api("/api/admin/materials/" + material.id, { method: "DELETE" });
-        await loadMaterials();
+        await reloadMaterialDirections(material.direction?.slug);
       });
       actions.append(edit, pin, archive, remove);
       card.append(actions);
@@ -336,7 +349,8 @@
       '<label><span>Предмет</span><select name="subjectSlug"></select></label>' +
       '<label><span>Тип</span><select name="type">' + materialTypeOptions(material.type) + '</select></label>' +
       '</div>' +
-      '<div class="material-edit-actions"><button type="submit">Сохранить</button><button type="button" data-cancel-edit>Отмена</button></div>';
+      '<div class="material-edit-actions"><button type="submit">Сохранить</button><button type="button" data-cancel-edit>Отмена</button></div>' +
+      '<p class="material-edit-status" data-material-edit-status></p>';
 
     form.querySelector('input[name="title"]').value = material.title || "";
     form.querySelector('textarea[name="description"]').value = material.description || "";
@@ -366,10 +380,17 @@
     form.addEventListener("click", (event) => event.stopPropagation());
     form.addEventListener("submit", async (event) => {
       event.preventDefault();
+      event.stopPropagation();
       const data = new FormData(form);
       const submit = form.querySelector('button[type="submit"]');
+      const status = form.querySelector("[data-material-edit-status]");
       submit.disabled = true;
+      if (status) {
+        status.textContent = "Сохраняю...";
+        status.classList.remove("is-error");
+      }
       try {
+        const nextDirection = String(data.get("directionSlug") || "");
         await api("/api/admin/materials/" + material.id, {
           method: "PATCH",
           body: JSON.stringify({
@@ -381,10 +402,15 @@
             type: data.get("type")
           })
         });
+        syncDirectionCard(nextDirection, true);
         setPanelStatus("Материал обновлён", false);
-        syncDirectionCard(String(data.get("directionSlug") || ""), true);
-        await loadMaterials();
+        if (status) status.textContent = "Сохранено";
+        await reloadMaterialDirections(directionSlug, nextDirection);
       } catch (error) {
+        if (status) {
+          status.textContent = error.message;
+          status.classList.add("is-error");
+        }
         setPanelStatus(error.message, true);
         submit.disabled = false;
       }
@@ -844,7 +870,7 @@
       initMaterialUpload(formElement);
       syncDirectionCard(String(form.get("directionSlug") || ""), true);
       setPanelStatus("Материал добавлен", false);
-      await loadMaterials();
+      await reloadMaterialDirections(String(form.get("directionSlug") || ""));
     } catch (error) {
       setPanelStatus(error.message, true);
     }
