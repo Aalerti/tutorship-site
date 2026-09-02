@@ -126,6 +126,20 @@
     }));
   }
 
+  async function refreshDirectionCardAvailability() {
+    await Promise.all(state.directions.map(async (direction) => {
+      try {
+        const [current, archived] = await Promise.all([
+          api("/api/materials?direction=" + encodeURIComponent(direction.slug) + "&limit=1"),
+          api("/api/materials?direction=" + encodeURIComponent(direction.slug) + "&archived=true&limit=1")
+        ]);
+        syncDirectionCard(direction.slug, Boolean((current.total || current.items?.length) || (archived.total || archived.items?.length)));
+      } catch (error) {
+        console.warn("Direction availability check failed.", direction.slug, error);
+      }
+    }));
+  }
+
   function syncDirectionCard(direction, hasMaterials) {
     if (!direction || !hasMaterials) return;
     const card = Array.from(document.querySelectorAll(".group-card[data-direction-card]"))
@@ -624,6 +638,9 @@
   }
 
   async function loadDirectionMaterials(board, direction) {
+    if (!board || !direction) return;
+    if (board.dataset.materialsLoading === "true") return;
+    board.dataset.materialsLoading = "true";
     try {
       const [data, archiveData] = await Promise.all([
         api("/api/materials?" + buildMaterialQuery(direction)),
@@ -633,6 +650,7 @@
       const archivedMaterials = archiveData.items || [];
       syncDirectionCard(direction, Boolean((data.total || materials.length) || (archiveData.total || archivedMaterials.length)));
       delete board.dataset.apiFallback;
+      board.dataset.materialsLoaded = "true";
       board.innerHTML = "";
       renderCatalogControls(board, direction);
       renderMaterials(board, direction, materials);
@@ -643,15 +661,41 @@
       const controls = renderCatalogControls(board, direction);
       board.insertBefore(controls, board.firstChild);
       applyStaticFilters(board, direction);
+    } finally {
+      delete board.dataset.materialsLoading;
     }
   }
 
   async function loadMaterials() {
     const boards = Array.from(document.querySelectorAll(".board-main[data-direction]"));
-    await Promise.all(boards.map(async (board) => {
-      const direction = board.dataset.direction;
-      if (direction) await loadDirectionMaterials(board, direction);
-    }));
+    const activeHash = decodeURIComponent(window.location.hash || "").replace(/^#/, "");
+    const firstBoard = boards.find((board) => board.dataset.direction === activeHash) || boards[0];
+    if (firstBoard?.dataset.direction) await loadDirectionMaterials(firstBoard, firstBoard.dataset.direction);
+
+    if (!("IntersectionObserver" in window)) {
+      await Promise.all(boards
+        .filter((board) => board !== firstBoard)
+        .map(async (board) => {
+          const direction = board.dataset.direction;
+          if (direction) await loadDirectionMaterials(board, direction);
+        }));
+      return;
+    }
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        const board = entry.target;
+        const direction = board.dataset.direction;
+        if (direction && board.dataset.materialsLoaded !== "true") {
+          loadDirectionMaterials(board, direction);
+        }
+        observer.unobserve(board);
+      });
+    }, { rootMargin: "700px 0px" });
+
+    boards.forEach((board) => {
+      if (board !== firstBoard) observer.observe(board);
+    });
   }
 
   function setPanelStatus(message, isError) {
@@ -1005,6 +1049,7 @@
       state.semesters = result[1];
       state.subjects = result[2];
       refreshAdminPanel();
+      refreshDirectionCardAvailability();
     } catch (error) {
       console.warn("Directory API unavailable.", error);
     }

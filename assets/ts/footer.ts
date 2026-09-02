@@ -36,7 +36,7 @@ function setupFeedbackModal() {
   }
 
   // Открыть по ссылке
-  document.querySelectorAll('[onclick="toggleFeedback()"]').forEach(el =>
+  document.querySelectorAll('[data-feedback-toggle]').forEach(el =>
     el.addEventListener('click', (e) => {
       e.preventDefault();
       toggle();
@@ -57,18 +57,22 @@ function setupScrollToTop() {
   const btn = document.querySelector<HTMLElement>('.scroll-to-top');
   if (!btn) return;
 
-  btn.style.opacity = '0';
   btn.addEventListener('click', () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   });
 
+  let ticking = false;
+  const updateVisibility = () => {
+    btn.classList.toggle('is-visible', window.scrollY > 300);
+    ticking = false;
+  };
+
+  updateVisibility();
   window.addEventListener('scroll', () => {
-    if (window.pageYOffset > 300) {
-      btn.style.opacity = '1';
-    } else {
-      btn.style.opacity = '0';
-    }
-  });
+    if (ticking) return;
+    ticking = true;
+    window.requestAnimationFrame(updateVisibility);
+  }, { passive: true });
 }
 
 // Инициализация всех функций после загрузки DOM

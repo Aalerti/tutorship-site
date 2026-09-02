@@ -1945,14 +1945,37 @@ a {
 }
 
 .site-footer .scroll-to-top {
+  position: fixed;
+  right: 1rem;
+  bottom: calc(1rem + env(safe-area-inset-bottom));
+  z-index: 1100;
+  width: 56px;
+  height: 56px;
   border-color: rgba(111, 81, 63, 0.16);
   background: rgba(255, 250, 241, 0.84);
   box-shadow: var(--shadow-l1);
+  opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
+  transform: translateY(10px);
+  transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s ease, border-color 0.18s ease;
+}
+
+.site-footer .scroll-to-top.is-visible {
+  opacity: 1;
+  pointer-events: auto;
+  visibility: visible;
+  transform: translateY(0);
 }
 
 @media (max-width: 760px) {
   .site-footer .scroll-to-top {
-    display: none;
+    display: flex;
+    right: 0.9rem;
+    bottom: calc(0.9rem + env(safe-area-inset-bottom));
+    width: 48px;
+    height: 48px;
+    box-shadow: 0 10px 22px rgba(77, 55, 43, 0.13);
   }
 }
 
@@ -3236,6 +3259,7 @@ body {
   }
 
   .board-section,
+  .direction,
   .archive-folder,
   .post-card {
     content-visibility: auto;
@@ -3248,6 +3272,25 @@ body {
   .admin-panel-body,
   .admin-panel-toggle {
     box-shadow: 0 10px 22px rgba(77, 55, 43, 0.1);
+  }
+
+  .hero,
+  .notice-board,
+  .about,
+  .tutors-section,
+  .years-grid {
+    animation: none;
+  }
+}
+
+@media (hover: none) and (pointer: coarse) {
+  .post-card:hover,
+  .group-card:hover,
+  .archive-folder-cover:hover,
+  .admin-panel button:hover,
+  .material-actions button:hover,
+  .site-footer .scroll-to-top:hover {
+    transform: none;
   }
 }
 

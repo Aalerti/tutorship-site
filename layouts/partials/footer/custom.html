@@ -32,7 +32,7 @@
                             <span class="icon telegram-icon"></span>
                         </li>
                         <li>
-                            <a href="#" onclick="toggleFeedback()">Обратная связь</a>
+                            <a href="#" data-feedback-toggle>Обратная связь</a>
                             <span class="icon feedback-icon"></span>
                         </li>
                     </ul>
@@ -67,7 +67,7 @@
                     <span class="theme-text">Тема</span>
                 </button>
                 
-                <button class="scroll-to-top" onclick="scrollToTop()" aria-label="Наверх">
+                <button class="scroll-to-top" type="button" aria-label="Наверх">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <polyline points="18,15 12,9 6,15"></polyline>
                     </svg>
@@ -80,7 +80,7 @@
 <!-- Модальное окно обратной связи -->
 <div id="feedback-modal" class="modal">
     <div class="modal-content">
-        <span class="close" onclick="toggleFeedback()">&times;</span>
+        <span class="close">&times;</span>
         <h3>Обратная связь</h3>
         <p>Нашли ошибку? Есть предложения по улучшению?</p>
         <div class="feedback-options">
