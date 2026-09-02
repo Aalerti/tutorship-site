@@ -668,6 +668,15 @@
 
   async function loadMaterials() {
     const boards = Array.from(document.querySelectorAll(".board-main[data-direction]"));
+    const useLazyLoading = window.matchMedia("(max-width: 760px)").matches;
+    if (!useLazyLoading) {
+      await Promise.all(boards.map(async (board) => {
+        const direction = board.dataset.direction;
+        if (direction) await loadDirectionMaterials(board, direction);
+      }));
+      return;
+    }
+
     const activeHash = decodeURIComponent(window.location.hash || "").replace(/^#/, "");
     const firstBoard = boards.find((board) => board.dataset.direction === activeHash) || boards[0];
     if (firstBoard?.dataset.direction) await loadDirectionMaterials(firstBoard, firstBoard.dataset.direction);

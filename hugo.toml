@@ -1,6 +1,6 @@
 baseURL = 'http://se-tutorship.ru'
 languageCode = 'ru-ru'
-title = 'Курс молодого ПИшника'
+title = 'Курс молодого КНиИТовца'
 theme = 'stack'
 buildFuture = true
 
