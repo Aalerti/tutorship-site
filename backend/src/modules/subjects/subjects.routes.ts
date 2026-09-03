@@ -12,7 +12,7 @@ export async function subjectRoutes(app: FastifyInstance) {
       include: {
         direction: true
       },
-      orderBy: [{ direction: { sortOrder: "asc" } }, { sortOrder: "asc" }, { title: "asc" }]
+      orderBy: [{ direction: { sortOrder: "asc" } }, { title: "asc" }]
     });
   });
 }

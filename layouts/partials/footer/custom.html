@@ -3,28 +3,17 @@
         <!-- Основная информация -->
         <div class="footer-info">
             <div class="footer-brand">
-                <h3>Tutorship 2026</h3>
-                <p>Материалы для успешной учёбы студентов ПИ</p>
+                <h3>Курс молодого КНиИТовца</h3>
+                <p>Материалы для успешной учёбы студентов КНиИТ</p>
             </div>
-            
-            <!-- Полезные ссылки -->
             <div class="footer-links">
-                <div class="link-group">
-                    <h4>Материалы</h4>
-                    <ul>
-                        <li><a href="/posts/2025/">2025-2026</a></li>
-                        <li><a href="/posts/2026/">2026-2027</a></li>
-                        <li><a href="/posts/2027/">2027-2028</a></li>
-                    </ul>
-                </div>
-                
                 <div class="link-group">
                     <h4>Ресурсы</h4>
                     <ul>
                         <li><a href="https://old.sgu.ru/" target="_blank">Старый сайт СГУ</a></li>
                         <li><a href="https://sgu.ru/" target="_blank">Новый сайт СГУ</a></li>
                         <li>
-                            <a href="https://github.com/Chertilas-and-Co/Tutorship2025" target="_blank">GitHub</a>
+                            <a href="https://github.com/Aalerti/tutorship-site" target="_blank">GitHub</a>
                             <svg class="icon github-icon-white"></svg>
                             <svg class="icon github-icon-black"></svg>
                         </li>
@@ -43,7 +32,7 @@
                             <span class="icon telegram-icon"></span>
                         </li>
                         <li>
-                            <a href="#" onclick="toggleFeedback()">Обратная связь</a>
+                            <a href="#" data-feedback-toggle>Обратная связь</a>
                             <span class="icon feedback-icon"></span>
                         </li>
                     </ul>
@@ -54,11 +43,8 @@
         <!-- Нижняя часть футера -->
         <div class="footer-bottom">
             <div class="footer-copyright">
-                <p>&copy; {{ now.Year }} Chertilas-and-Co. Создано студентами для студентов.</p>
-                <p class="powered-by">Powered by <a href="https://shattereddisk.github.io/rickroll/rickroll.mp4" target="_blank">Aboba</a> && 
-                <a href="https://old.sgu.ru/person/sahno-lyudmila-vladimirovna" target="_blank">Big Mommy</a> &&
-                <a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank">Stack</a>
-                </p>
+                <p>&copy; {{ now.Year }} <a href="https://github.com/Aalerti" target="_blank">Aalerti</a>. Создано студентами для студентов.</p>
+                <p><a href="https://github.com/Aalerti/tutorship-site" target="_blank">Исходный код на GitHub</a></p>
             </div>
             
             <!-- Переключатель темы и утилиты -->
@@ -81,7 +67,7 @@
                     <span class="theme-text">Тема</span>
                 </button>
                 
-                <button class="scroll-to-top" onclick="scrollToTop()" aria-label="Наверх">
+                <button class="scroll-to-top" type="button" aria-label="Наверх">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <polyline points="18,15 12,9 6,15"></polyline>
                     </svg>
@@ -94,11 +80,11 @@
 <!-- Модальное окно обратной связи -->
 <div id="feedback-modal" class="modal">
     <div class="modal-content">
-        <span class="close" onclick="toggleFeedback()">&times;</span>
+        <span class="close">&times;</span>
         <h3>Обратная связь</h3>
         <p>Нашли ошибку? Есть предложения по улучшению?</p>
         <div class="feedback-options">
-            <a href="https://github.com/Chertilas-and-Co/Tutorship2025/issues" target="_blank" class="feedback-btn">
+            <a href="https://github.com/Aalerti/tutorship-site/issues" target="_blank" class="feedback-btn">
                 GitHub Issues
             </a>
             <a href="mailto:feedback@tutorship.ru" class="feedback-btn">

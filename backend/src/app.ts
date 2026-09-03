@@ -2,6 +2,7 @@ import cors from "@fastify/cors";
 import multipart from "@fastify/multipart";
 import Fastify from "fastify";
 import { env } from "./config/env.js";
+import { MAX_UPLOAD_SIZE } from "./config/uploads.js";
 import { authPlugin } from "./plugins/auth.js";
 import { prismaPlugin } from "./plugins/prisma.js";
 import { rateLimitPlugin } from "./plugins/rate-limit.js";
@@ -40,7 +41,7 @@ export async function buildApp() {
   });
   await app.register(multipart, {
     limits: {
-      fileSize: 20 * 1024 * 1024
+      fileSize: MAX_UPLOAD_SIZE
     }
   });
   await app.register(rateLimitPlugin);

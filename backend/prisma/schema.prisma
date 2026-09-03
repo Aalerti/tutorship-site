@@ -97,6 +97,7 @@ model Subject {
   title       String
   shortTitle  String?
   description String?
+  semesterNumbers Int[]      @default([])
   directionId String
   sortOrder   Int        @default(0)
   isActive    Boolean    @default(true)

@@ -1,8 +1,11 @@
-baseURL = 'http://se-tutorship.ru'
+baseURL = 'https://studkniit.online'
 languageCode = 'ru-ru'
-title = 'Курс молодого ПИшника'
+title = 'Курс молодого КНиИТовца'
 theme = 'stack'
 buildFuture = true
+
+[params]
+  description = 'Курс молодого КНиИТовца: материалы, гайды, конспекты, экзамены и полезные ссылки для студентов КНиИТ.'
 
 [markup]
   [markup.goldmark]

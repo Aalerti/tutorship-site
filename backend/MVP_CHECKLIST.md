@@ -32,7 +32,7 @@ Rollback point before backend MVP: `a5ea782`.
   - create tutor/admin;
   - update user;
   - disable user.
-- Basic upload endpoint with extension allowlist and 20 MB multipart limit.
+- Basic upload endpoint with extension allowlist and 50 MB multipart limit.
 - Dockerfile for backend.
 - Docker Compose services for web, backend and PostgreSQL.
 

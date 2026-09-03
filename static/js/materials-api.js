@@ -4,6 +4,8 @@
       ? "http://localhost:4000"
       : "");
   const TOKEN_KEY = "TutorshipAdminToken";
+  const MOBILE_CARD_LIMIT = 12;
+  const MOBILE_CARD_STEP = 12;
   const typeLabels = {
     GUIDE: "Гайд",
     NOTES: "Конспект",
@@ -38,8 +40,10 @@
     semesters: [],
     subjects: [],
     users: [],
-    filters: new Map()
+    filters: new Map(),
+    visibleLimits: new Map()
   };
+  const maxUploadSize = 50 * 1024 * 1024;
 
   function formatDate(value) {
     if (!value) return "";
@@ -81,12 +85,28 @@
     const allowed = new Set((state.user?.directions || []).map((direction) => direction.slug));
     return state.directions.filter((direction) => allowed.has(direction.slug));
   }
-  function subjectsForDirection(directionSlug) {
+  function subjectsForDirection(directionSlug, semesterNumber = "") {
     const subjects = state.subjects.filter((subject) => subject.direction?.slug === directionSlug || subject.directionSlug === directionSlug);
-    return subjects.length ? subjects : fallbackSubjects[directionSlug] || [];
+    return (subjects.length ? subjects : fallbackSubjects[directionSlug] || [])
+      .filter((subject) => {
+        if (!semesterNumber || !Array.isArray(subject.semesterNumbers) || !subject.semesterNumbers.length) return true;
+        return subject.semesterNumbers.includes(Number(semesterNumber));
+      })
+      .slice()
+      .sort((a, b) => (a.title || a.shortTitle || "").localeCompare(b.title || b.shortTitle || "", "ru"));
   }
   function semesterOptions() {
     return state.semesters.length ? state.semesters : fallbackSemesters;
+  }
+  function materialTypeOptions(selectedType = "") {
+    return Object.entries(typeLabels).map(([type, label]) =>
+      '<option value="' + type + '"' + (type === selectedType ? " selected" : "") + '>' + escapeHtml(label) + '</option>'
+    ).join("");
+  }
+  function directionOptions(selectedSlug = "") {
+    return availableDirections().map((direction) =>
+      '<option value="' + escapeHtml(direction.slug) + '"' + (direction.slug === selectedSlug ? " selected" : "") + '>' + escapeHtml(direction.shortName) + '</option>'
+    ).join("");
   }
   function canManageDirection(directionSlug) {
     if (!state.token) return false;
@@ -97,6 +117,63 @@
     return canManageDirection(material.direction?.slug);
   }
 
+  function boardForDirection(direction) {
+    return Array.from(document.querySelectorAll(".board-main[data-direction]"))
+      .find((board) => board.dataset.direction === direction);
+  }
+
+  async function reloadMaterialDirections(...directions) {
+    const uniqueDirections = Array.from(new Set(directions.filter(Boolean)));
+    await Promise.all(uniqueDirections.map(async (direction) => {
+      const board = boardForDirection(direction);
+      if (board) await loadDirectionMaterials(board, direction);
+    }));
+  }
+
+  async function refreshDirectionCardAvailability() {
+    await Promise.all(state.directions.map(async (direction) => {
+      try {
+        const [current, archived] = await Promise.all([
+          api("/api/materials?direction=" + encodeURIComponent(direction.slug) + "&limit=1"),
+          api("/api/materials?direction=" + encodeURIComponent(direction.slug) + "&archived=true&limit=1")
+        ]);
+        syncDirectionCard(direction.slug, Boolean((current.total || current.items?.length) || (archived.total || archived.items?.length)));
+      } catch (error) {
+        console.warn("Direction availability check failed.", direction.slug, error);
+      }
+    }));
+  }
+
+  function syncDirectionCard(direction, hasMaterials) {
+    if (!direction || !hasMaterials) return;
+    const card = Array.from(document.querySelectorAll(".group-card[data-direction-card]"))
+      .find((item) => item.dataset.directionCard === direction);
+    if (!card) return;
+
+    card.classList.remove("soon");
+
+    let link = card.querySelector(".group-link");
+    if (!link) {
+      link = document.createElement("a");
+      link.className = "group-link";
+      card.prepend(link);
+    }
+    const label = card.getAttribute("title") || card.querySelector(".group-short")?.textContent?.trim() || direction;
+    link.href = "#" + direction;
+    link.setAttribute("aria-label", label + " — перейти к доске");
+
+    const stamp = card.querySelector(".group-stamp");
+    if (stamp) {
+      stamp.className = "group-action";
+      stamp.textContent = "Открыть материалы";
+    } else if (!card.querySelector(".group-action")) {
+      const action = document.createElement("span");
+      action.className = "group-action";
+      action.textContent = "Открыть материалы";
+      card.append(action);
+    }
+  }
+
   async function api(path, options = {}) {
     const headers = { ...authHeaders(), ...(options.headers || {}) };
     const isFormData = typeof FormData !== "undefined" && options.body instanceof FormData;
@@ -105,8 +182,14 @@
     }
     const response = await fetch(API_BASE + path, { ...options, credentials: "include", headers });
     if (!response.ok) {
-      const data = await response.json().catch(() => ({}));
-      throw new Error(data.message || "Backend error");
+      const text = await response.text().catch(() => "");
+      let data = {};
+      try {
+        data = text ? JSON.parse(text) : {};
+      } catch (_error) {
+        data = {};
+      }
+      throw new Error(data.message || text || "Ошибка backend: " + response.status);
     }
     return response.json();
   }
@@ -126,6 +209,36 @@
       });
     }
     return state.filters.get(direction);
+  }
+
+  function shouldLimitCards() {
+    return window.matchMedia("(max-width: 760px)").matches;
+  }
+
+  function visibleLimitKey(direction, shelf) {
+    return direction + ":" + shelf;
+  }
+
+  function visibleLimit(direction, shelf, total) {
+    if (!shouldLimitCards()) return total;
+    const current = state.visibleLimits.get(visibleLimitKey(direction, shelf)) || MOBILE_CARD_LIMIT;
+    return Math.min(current, total);
+  }
+
+  function resetVisibleLimits(direction, shelf = "") {
+    if (shelf) {
+      state.visibleLimits.delete(visibleLimitKey(direction, shelf));
+      return;
+    }
+    ["pinned", "current", "archive"].forEach((item) => state.visibleLimits.delete(visibleLimitKey(direction, item)));
+  }
+
+  function showMoreMaterials(direction, shelf) {
+    const key = visibleLimitKey(direction, shelf);
+    const current = state.visibleLimits.get(key) || MOBILE_CARD_LIMIT;
+    state.visibleLimits.set(key, current + MOBILE_CARD_STEP);
+    const board = boardForDirection(direction);
+    if (board) loadDirectionMaterials(board, direction);
   }
 
   function buildMaterialQuery(direction, archived = false) {
@@ -215,6 +328,14 @@
     if (canManageMaterial(material)) {
       const actions = document.createElement("div");
       actions.className = "material-actions";
+      const edit = document.createElement("button");
+      edit.type = "button";
+      edit.textContent = "Изменить";
+      edit.className = "material-action material-action-edit";
+      edit.addEventListener("click", (event) => {
+        event.preventDefault(); event.stopPropagation();
+        beginMaterialEdit(card, material);
+      });
       const pin = document.createElement("button");
       pin.type = "button";
       pin.textContent = material.isPinned ? "Открепить" : "Закрепить";
@@ -226,7 +347,7 @@
         try {
           await api("/api/admin/materials/" + material.id + "/" + action, { method: "POST" });
           setPanelStatus(material.isPinned ? "Материал откреплён" : "Материал закреплён", false);
-          await loadMaterials();
+          await reloadMaterialDirections(material.direction?.slug);
         } catch (error) {
           setPanelStatus(error.message, true);
           pin.disabled = false;
@@ -243,7 +364,7 @@
         try {
           await api("/api/admin/materials/" + material.id + "/" + action, { method: "POST" });
           setPanelStatus(options.archived ? "Материал вернулся на доску" : "Материал отправлен в архив", false);
-          await loadMaterials();
+          await reloadMaterialDirections(material.direction?.slug);
         } catch (error) {
           setPanelStatus(error.message, true);
           archive.disabled = false;
@@ -257,12 +378,104 @@
         event.preventDefault(); event.stopPropagation();
         if (!confirm("Удалить материал «" + material.title + "»?")) return;
         await api("/api/admin/materials/" + material.id, { method: "DELETE" });
-        await loadMaterials();
+        await reloadMaterialDirections(material.direction?.slug);
       });
-      actions.append(pin, archive, remove);
+      actions.append(edit, pin, archive, remove);
       card.append(actions);
     }
     return card;
+  }
+
+  function beginMaterialEdit(card, material) {
+    card.querySelector(".material-edit-form")?.remove();
+    card.classList.add("is-editing");
+
+    const form = document.createElement("form");
+    form.className = "material-edit-form";
+    const directionSlug = material.direction?.slug || "";
+    const semesterNumber = material.semester?.number ? String(material.semester.number) : "";
+    form.innerHTML =
+      '<label><span>Название</span><input name="title" minlength="2" maxlength="160" required></label>' +
+      '<label><span>Описание</span><textarea name="description" maxlength="500" rows="3"></textarea></label>' +
+      '<div class="material-edit-grid">' +
+      '<label><span>Направление</span><select name="directionSlug" required>' + directionOptions(directionSlug) + '</select></label>' +
+      '<label><span>Семестр</span><select name="semesterNumber"><option value="">Без семестра</option>' + semesterOptions().map((semester) => '<option value="' + semester.number + '"' + (String(semester.number) === semesterNumber ? " selected" : "") + '>' + escapeHtml(semester.title) + '</option>').join("") + '</select></label>' +
+      '<label><span>Предмет</span><select name="subjectSlug"></select></label>' +
+      '<label><span>Тип</span><select name="type">' + materialTypeOptions(material.type) + '</select></label>' +
+      '</div>' +
+      '<div class="material-edit-actions"><button type="submit">Сохранить</button><button type="button" data-cancel-edit>Отмена</button></div>' +
+      '<p class="material-edit-status" data-material-edit-status></p>';
+
+    form.querySelector('input[name="title"]').value = material.title || "";
+    form.querySelector('textarea[name="description"]').value = material.description || "";
+    const directionSelect = form.querySelector('select[name="directionSlug"]');
+    const semesterSelect = form.querySelector('select[name="semesterNumber"]');
+    const subjectSelect = form.querySelector('select[name="subjectSlug"]');
+    let preserveOriginalSubject = true;
+    const fillSubjects = () => {
+      const subjects = subjectsForDirection(directionSelect.value, semesterSelect.value);
+      const currentSubject = subjects.some((subject) => subject.slug === subjectSelect.value)
+        ? subjectSelect.value
+        : preserveOriginalSubject ? material.subject?.slug || "" : "";
+      const selectedSubject = subjects.some((subject) => subject.slug === currentSubject) ? currentSubject : "";
+      subjectSelect.innerHTML = '<option value="">Без предмета</option>' + subjects.map((subject) => '<option value="' + escapeHtml(subject.slug) + '"' + (subject.slug === selectedSubject ? " selected" : "") + '>' + escapeHtml(subject.title || subject.shortTitle) + '</option>').join("");
+    };
+    directionSelect.addEventListener("change", () => {
+      preserveOriginalSubject = false;
+      subjectSelect.value = "";
+      fillSubjects();
+    });
+    semesterSelect.addEventListener("change", () => {
+      preserveOriginalSubject = false;
+      subjectSelect.value = "";
+      fillSubjects();
+    });
+    fillSubjects();
+    form.addEventListener("click", (event) => event.stopPropagation());
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      const data = new FormData(form);
+      const submit = form.querySelector('button[type="submit"]');
+      const status = form.querySelector("[data-material-edit-status]");
+      submit.disabled = true;
+      if (status) {
+        status.textContent = "Сохраняю...";
+        status.classList.remove("is-error");
+      }
+      try {
+        const nextDirection = String(data.get("directionSlug") || "");
+        await api("/api/admin/materials/" + material.id, {
+          method: "PATCH",
+          body: JSON.stringify({
+            title: data.get("title"),
+            description: data.get("description"),
+            directionSlug: data.get("directionSlug"),
+            semesterNumber: data.get("semesterNumber") ? Number(data.get("semesterNumber")) : null,
+            subjectSlug: data.get("subjectSlug") || null,
+            type: data.get("type")
+          })
+        });
+        syncDirectionCard(nextDirection, true);
+        setPanelStatus("Материал обновлён", false);
+        if (status) status.textContent = "Сохранено";
+        await reloadMaterialDirections(directionSlug, nextDirection);
+      } catch (error) {
+        if (status) {
+          status.textContent = error.message;
+          status.classList.add("is-error");
+        }
+        setPanelStatus(error.message, true);
+        submit.disabled = false;
+      }
+    });
+    form.querySelector("[data-cancel-edit]").addEventListener("click", () => {
+      form.remove();
+      card.classList.remove("is-editing");
+    });
+
+    card.append(form);
+    form.querySelector('input[name="title"]').focus();
   }
 
   function renderEmpty(board, direction, filtered = false) {
@@ -280,7 +493,10 @@
     const oldControls = board.querySelector("[data-catalog-controls]");
     if (oldControls) oldControls.remove();
     const filters = filterState(direction);
-    const subjects = subjectsForDirection(direction);
+    const subjects = subjectsForDirection(direction, filters.semester);
+    if (filters.subject && !subjects.some((subject) => subject.slug === filters.subject)) {
+      filters.subject = "";
+    }
     const controls = document.createElement("form");
     controls.className = "material-catalog";
     controls.dataset.catalogControls = "";
@@ -288,12 +504,13 @@
       '<div class="catalog-search"><input name="search" type="search" placeholder="Поиск по материалам, предметам и описаниям" value="' + escapeHtml(filters.search) + '"></div>' +
       '<div class="catalog-filters">' +
       '<select name="semester"><option value="">Все семестры</option>' + semesterOptions().map((semester) => '<option value="' + semester.number + '"' + (String(semester.number) === filters.semester ? " selected" : "") + '>' + escapeHtml(semester.title) + '</option>').join("") + '</select>' +
-      '<select name="subject"><option value="">Все предметы</option>' + subjects.map((subject) => '<option value="' + escapeHtml(subject.slug) + '"' + (subject.slug === filters.subject ? " selected" : "") + '>' + escapeHtml(subject.shortTitle || subject.title) + '</option>').join("") + '</select>' +
+      '<select name="subject"><option value="">Все предметы</option>' + subjects.map((subject) => '<option value="' + escapeHtml(subject.slug) + '"' + (subject.slug === filters.subject ? " selected" : "") + '>' + escapeHtml(subject.title || subject.shortTitle) + '</option>').join("") + '</select>' +
       '<select name="type"><option value="">Все типы</option>' + Object.keys(typeLabels).map((type) => '<option value="' + type + '"' + (type === filters.type ? " selected" : "") + '>' + escapeHtml(typeLabels[type]) + '</option>').join("") + '</select>' +
       '<button type="button" data-reset-filters>Сбросить</button>' +
       '</div>';
     controls.addEventListener("submit", (event) => event.preventDefault());
     const refresh = () => {
+      resetVisibleLimits(direction);
       if (board.dataset.apiFallback === "true") {
         applyStaticFilters(board, direction);
       } else {
@@ -347,7 +564,6 @@
   }
 
   function renderGroupedMaterials(target, direction, materials, options = {}) {
-    const filters = filterState(direction);
     if (!materials.length) {
       if (options.emptyMessage) {
         const empty = document.createElement("p");
@@ -358,19 +574,33 @@
       return;
     }
 
+    const shelf = options.shelf || "";
+    const total = materials.length;
+    const limit = shelf ? visibleLimit(direction, shelf, total) : total;
+    const visibleMaterials = materials.slice(0, limit);
     const grouped = new Map();
-    catalogSections.forEach((section) => grouped.set(section.key, []));
+    const visibleGrouped = new Map();
+    catalogSections.forEach((section) => {
+      grouped.set(section.key, []);
+      visibleGrouped.set(section.key, []);
+    });
     materials.forEach((material) => {
       const key = grouped.has(material.type) ? material.type : "OTHER";
       grouped.get(key).push(material);
     });
+    visibleMaterials.forEach((material) => {
+      const key = visibleGrouped.has(material.type) ? material.type : "OTHER";
+      visibleGrouped.get(key).push(material);
+    });
 
     catalogSections.forEach((section) => {
-      const sectionMaterials = grouped.get(section.key) || [];
+      const sectionMaterials = visibleGrouped.get(section.key) || [];
       if (!sectionMaterials.length) return;
+      const sectionTotal = (grouped.get(section.key) || []).length;
+      const count = sectionMaterials.length === sectionTotal ? sectionTotal : sectionMaterials.length + " / " + sectionTotal;
       const catalogSection = document.createElement("section");
       catalogSection.className = "catalog-section";
-      catalogSection.innerHTML = '<div class="catalog-section-head"><h3>' + escapeHtml(section.title) + '</h3><span>' + sectionMaterials.length + '</span></div>';
+      catalogSection.innerHTML = '<div class="catalog-section-head"><h3>' + escapeHtml(section.title) + '</h3><span>' + count + '</span></div>';
       const list = document.createElement("div");
       list.className = "posts-cards board-cards";
       list.dataset.materialsList = "";
@@ -379,6 +609,15 @@
       catalogSection.append(list);
       target.append(catalogSection);
     });
+
+    if (shelf && limit < total) {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "materials-load-more";
+      button.textContent = "Показать ещё " + Math.min(MOBILE_CARD_STEP, total - limit);
+      button.addEventListener("click", () => showMoreMaterials(direction, shelf));
+      target.append(button);
+    }
   }
 
   function renderShelf(board, direction, title, count, modifier = "") {
@@ -397,7 +636,7 @@
 
     if (pinnedMaterials.length) {
       const pinnedContent = renderShelf(board, direction, "Закреплённое", pinnedMaterials.length, "material-shelf-pinned");
-      renderGroupedMaterials(pinnedContent, direction, pinnedMaterials);
+      renderGroupedMaterials(pinnedContent, direction, pinnedMaterials, { shelf: "pinned" });
     }
 
     const content = renderShelf(board, direction, "Актуальное", regularMaterials.length, "material-shelf-current");
@@ -405,12 +644,15 @@
       renderEmpty(content, direction, filtered);
       return;
     }
-    renderGroupedMaterials(content, direction, regularMaterials);
+    renderGroupedMaterials(content, direction, regularMaterials, { shelf: "current" });
   }
 
   function renderArchiveControls(target, direction) {
     const filters = filterState(direction);
-    const subjects = subjectsForDirection(direction);
+    const subjects = subjectsForDirection(direction, filters.archiveSemester);
+    if (filters.archiveSubject && !subjects.some((subject) => subject.slug === filters.archiveSubject)) {
+      filters.archiveSubject = "";
+    }
     const controls = document.createElement("form");
     controls.className = "material-catalog archive-catalog";
     controls.dataset.archiveControls = "";
@@ -418,7 +660,7 @@
       '<div class="catalog-search"><input name="archiveSearch" type="search" placeholder="Поиск внутри архива" value="' + escapeHtml(filters.archiveSearch) + '"></div>' +
       '<div class="catalog-filters archive-filters">' +
       '<select name="archiveSemester"><option value="">Все семестры архива</option>' + semesterOptions().map((semester) => '<option value="' + semester.number + '"' + (String(semester.number) === filters.archiveSemester ? " selected" : "") + '>' + escapeHtml(semester.title) + '</option>').join("") + '</select>' +
-      '<select name="archiveSubject"><option value="">Все предметы архива</option>' + subjects.map((subject) => '<option value="' + escapeHtml(subject.slug) + '"' + (subject.slug === filters.archiveSubject ? " selected" : "") + '>' + escapeHtml(subject.shortTitle || subject.title) + '</option>').join("") + '</select>' +
+      '<select name="archiveSubject"><option value="">Все предметы архива</option>' + subjects.map((subject) => '<option value="' + escapeHtml(subject.slug) + '"' + (subject.slug === filters.archiveSubject ? " selected" : "") + '>' + escapeHtml(subject.title || subject.shortTitle) + '</option>').join("") + '</select>' +
       '<select name="archiveType"><option value="">Все типы архива</option>' + Object.keys(typeLabels).map((type) => '<option value="' + type + '"' + (type === filters.archiveType ? " selected" : "") + '>' + escapeHtml(typeLabels[type]) + '</option>').join("") + '</select>' +
       '<select name="archiveSort"><option value="newest"' + (filters.archiveSort === "newest" ? " selected" : "") + '>Сначала новые</option><option value="oldest"' + (filters.archiveSort === "oldest" ? " selected" : "") + '>Сначала старые</option><option value="title"' + (filters.archiveSort === "title" ? " selected" : "") + '>По названию</option><option value="subject"' + (filters.archiveSort === "subject" ? " selected" : "") + '>По предмету</option></select>' +
       '<button type="button" data-reset-archive-filters>Сбросить архив</button>' +
@@ -427,6 +669,7 @@
     controls.addEventListener("submit", (event) => event.preventDefault());
     controls.querySelectorAll("select").forEach((select) => select.addEventListener("change", () => {
       filters[select.name] = select.value;
+      resetVisibleLimits(direction, "archive");
       loadDirectionMaterials(target.closest(".board-main"), direction);
     }));
 
@@ -436,12 +679,14 @@
       clearTimeout(searchTimer);
       searchTimer = setTimeout(() => {
         filters.archiveSearch = searchInput.value.trim();
+        resetVisibleLimits(direction, "archive");
         loadDirectionMaterials(target.closest(".board-main"), direction);
       }, 250);
     });
 
     controls.querySelector("[data-reset-archive-filters]").addEventListener("click", () => {
       Object.assign(filters, { archiveSearch: "", archiveSemester: "", archiveSubject: "", archiveType: "", archiveSort: "newest" });
+      resetVisibleLimits(direction, "archive");
       loadDirectionMaterials(target.closest(".board-main"), direction);
     });
 
@@ -453,12 +698,16 @@
     const content = renderShelf(board, direction, "Архив", filteredMaterials.length + " / " + total, "material-shelf-archive");
     renderArchiveControls(content, direction);
     renderGroupedMaterials(content, direction, filteredMaterials, {
+      shelf: "archive",
       cardOptions: { archived: true },
       emptyMessage: total ? "В архиве по этим фильтрам ничего не нашлось." : "В архиве пока пусто."
     });
   }
 
   async function loadDirectionMaterials(board, direction) {
+    if (!board || !direction) return;
+    if (board.dataset.materialsLoading === "true") return;
+    board.dataset.materialsLoading = "true";
     try {
       const [data, archiveData] = await Promise.all([
         api("/api/materials?" + buildMaterialQuery(direction)),
@@ -466,7 +715,9 @@
       ]);
       const materials = data.items || [];
       const archivedMaterials = archiveData.items || [];
+      syncDirectionCard(direction, Boolean((data.total || materials.length) || (archiveData.total || archivedMaterials.length)));
       delete board.dataset.apiFallback;
+      board.dataset.materialsLoaded = "true";
       board.innerHTML = "";
       renderCatalogControls(board, direction);
       renderMaterials(board, direction, materials);
@@ -477,15 +728,41 @@
       const controls = renderCatalogControls(board, direction);
       board.insertBefore(controls, board.firstChild);
       applyStaticFilters(board, direction);
+    } finally {
+      delete board.dataset.materialsLoading;
     }
   }
 
   async function loadMaterials() {
     const boards = Array.from(document.querySelectorAll(".board-main[data-direction]"));
-    await Promise.all(boards.map(async (board) => {
-      const direction = board.dataset.direction;
-      if (direction) await loadDirectionMaterials(board, direction);
-    }));
+    const activeHash = decodeURIComponent(window.location.hash || "").replace(/^#/, "");
+    const firstBoard = boards.find((board) => board.dataset.direction === activeHash) || boards[0];
+    if (firstBoard?.dataset.direction) await loadDirectionMaterials(firstBoard, firstBoard.dataset.direction);
+
+    if (!("IntersectionObserver" in window)) {
+      await Promise.all(boards
+        .filter((board) => board !== firstBoard)
+        .map(async (board) => {
+          const direction = board.dataset.direction;
+          if (direction) await loadDirectionMaterials(board, direction);
+        }));
+      return;
+    }
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        const board = entry.target;
+        const direction = board.dataset.direction;
+        if (direction && board.dataset.materialsLoaded !== "true") {
+          loadDirectionMaterials(board, direction);
+        }
+        observer.unobserve(board);
+      });
+    }, { rootMargin: "900px 0px" });
+
+    boards.forEach((board) => {
+      if (board !== firstBoard) observer.observe(board);
+    });
   }
 
   function setPanelStatus(message, isError) {
@@ -501,6 +778,15 @@
     const title = form.querySelector("[data-upload-title]");
     const status = form.querySelector("[data-upload-status]");
     const fileUrlInput = form.querySelector('input[name="fileUrl"]');
+    if (file.size > maxUploadSize) {
+      const message = "Файл слишком большой. Максимум 50 МБ.";
+      dropzone.classList.remove("is-uploading", "is-ready");
+      dropzone.classList.add("is-error");
+      title.textContent = file.name;
+      status.textContent = message;
+      setPanelStatus(message, true);
+      return;
+    }
     const body = new FormData();
     body.append("file", file);
 
@@ -553,13 +839,20 @@
   }
 
   function renderAdminPanel() {
+    const headerToggle = document.querySelector("[data-admin-nav-toggle]");
+    if (headerToggle) headerToggle.hidden = false;
+
     const panel = document.createElement("section");
     panel.className = "admin-panel";
-    panel.innerHTML = '<button class="admin-panel-toggle" type="button">Тьюторский режим</button><div class="admin-panel-body" hidden><div data-admin-panel-content></div><p class="admin-panel-status" data-admin-status></p></div>';
+    panel.innerHTML = (headerToggle ? "" : '<button class="admin-panel-toggle" type="button">Тьюторский режим</button>') + '<div class="admin-panel-body" id="admin-panel-body" hidden><div data-admin-panel-content></div><p class="admin-panel-status" data-admin-status></p></div>';
     document.body.append(panel);
     const body = panel.querySelector(".admin-panel-body");
-    const toggle = panel.querySelector(".admin-panel-toggle");
-    toggle.addEventListener("click", () => { body.hidden = !body.hidden; });
+    document.querySelectorAll(".admin-panel-toggle, [data-admin-nav-toggle]").forEach((toggle) => {
+      toggle.addEventListener("click", () => {
+        body.hidden = !body.hidden;
+        toggle.setAttribute("aria-expanded", String(!body.hidden));
+      });
+    });
     refreshAdminPanel();
   }
 
@@ -579,11 +872,13 @@
       renderUsers();
       if (state.user?.role === "ADMIN") loadUsers();
     } else {
-      content.innerHTML = '<form class="admin-login-form"><input name="email" type="email" placeholder="Почта" autocomplete="username" required><input name="password" type="password" placeholder="Пароль" autocomplete="current-password" required><button type="submit">Войти</button></form>';
+      content.innerHTML = '<form class="admin-login-form"><input name="email" type="email" placeholder="Почта" autocomplete="username" required><div class="admin-password-field"><input name="password" type="password" placeholder="Пароль" autocomplete="current-password" minlength="8" required><button type="button" data-toggle-password>Показать</button></div><button type="submit">Войти</button></form>';
       content.querySelector(".admin-login-form").addEventListener("submit", onLogin);
+      content.querySelector("[data-toggle-password]").addEventListener("click", onTogglePassword);
     }
-    const toggle = document.querySelector(".admin-panel-toggle");
-    if (toggle) toggle.textContent = state.token ? "Тьюторский режим включён" : "Тьюторский режим: войти";
+    document.querySelectorAll(".admin-panel-toggle, [data-admin-nav-toggle]").forEach((toggle) => {
+      toggle.textContent = state.token ? "Тьюторский режим включён" : "Тьюторский режим: войти";
+    });
     const directions = availableDirections();
     setPanelStatus(state.token ? "Доступ: " + (state.user?.role === "ADMIN" ? "все направления" : directions.map((d) => d.shortName).join(", ") || "нет направлений") : "", false);
   }
@@ -605,10 +900,12 @@
     directionSelect.disabled = state.user?.role !== "ADMIN" && directions.length <= 1;
     semesterSelect.innerHTML = '<option value="">Без семестра</option>' + state.semesters.map((semester) => '<option value="' + semester.number + '">' + escapeHtml(semester.title) + '</option>').join("");
     const fillSubjects = () => {
-      const subjects = subjectsForDirection(directionSelect.value);
-      subjectSelect.innerHTML = '<option value="">Без предмета</option>' + subjects.map((subject) => '<option value="' + escapeHtml(subject.slug) + '">' + escapeHtml(subject.shortTitle || subject.title) + '</option>').join("");
+      const subjects = subjectsForDirection(directionSelect.value, semesterSelect.value);
+      const currentSubject = subjects.some((subject) => subject.slug === subjectSelect.value) ? subjectSelect.value : "";
+      subjectSelect.innerHTML = '<option value="">Без предмета</option>' + subjects.map((subject) => '<option value="' + escapeHtml(subject.slug) + '"' + (subject.slug === currentSubject ? " selected" : "") + '>' + escapeHtml(subject.title || subject.shortTitle) + '</option>').join("");
     };
     directionSelect.addEventListener("change", fillSubjects);
+    semesterSelect.addEventListener("change", fillSubjects);
     fillSubjects();
     const submit = form.querySelector('button[type="submit"]');
     if (submit) submit.disabled = directions.length === 0;
@@ -643,10 +940,12 @@
     }
     list.innerHTML = state.users.map((user) => {
       const selected = (user.directions || []).map((direction) => direction.slug);
-      return '<article class="admin-user-card" data-user-id="' + escapeHtml(user.id) + '"><div class="admin-user-head"><strong>' + escapeHtml(user.name) + '</strong><small>' + escapeHtml(user.email) + '</small></div><span class="admin-user-role">' + (user.role === "ADMIN" ? "Админ" : "Тьютор") + '</span><div class="admin-direction-checks">' + directionCheckboxes(selected) + '</div><div class="admin-user-actions"><button type="button" data-save-user>Сохранить доступ</button><button type="button" data-toggle-user>' + (user.isActive ? "Отключить" : "Включить") + '</button></div></article>';
+      return '<article class="admin-user-card" data-user-id="' + escapeHtml(user.id) + '"><div class="admin-user-head"><strong>' + escapeHtml(user.name) + '</strong><small>Логин: ' + escapeHtml(user.email) + '</small></div><span class="admin-user-role">' + (user.role === "ADMIN" ? "Админ" : "Тьютор") + '</span><div class="admin-direction-checks">' + directionCheckboxes(selected) + '</div><div class="admin-user-password"><label><span>Новый пароль</span><div class="admin-password-field"><input name="password" type="password" placeholder="От 8 символов" minlength="8"><button type="button" data-toggle-password>Показать</button></div></label><button type="button" data-save-user-password>Сменить пароль</button></div><div class="admin-user-actions"><button type="button" data-save-user>Сохранить доступ</button><button type="button" data-toggle-user>' + (user.isActive ? "Отключить" : "Включить") + '</button></div></article>';
     }).join("");
     list.querySelectorAll("[data-save-user]").forEach((button) => button.addEventListener("click", onSaveUserAccess));
     list.querySelectorAll("[data-toggle-user]").forEach((button) => button.addEventListener("click", onToggleUser));
+    list.querySelectorAll("[data-toggle-password]").forEach((button) => button.addEventListener("click", onTogglePassword));
+    list.querySelectorAll("[data-save-user-password]").forEach((button) => button.addEventListener("click", onSaveUserPassword));
   }
 
   async function onLogin(event) {
@@ -664,9 +963,21 @@
     }
   }
 
+  function onTogglePassword(event) {
+    const button = event.currentTarget;
+    const field = button.closest(".admin-password-field");
+    const input = field?.querySelector('input[name="password"]');
+    if (!input) return;
+
+    const isHidden = input.type === "password";
+    input.type = isHidden ? "text" : "password";
+    button.textContent = isHidden ? "Скрыть" : "Показать";
+  }
+
   async function onCreateMaterial(event) {
     event.preventDefault();
-    const form = new FormData(event.currentTarget);
+    const formElement = event.currentTarget;
+    const form = new FormData(formElement);
     const semester = form.get("semesterNumber");
     try {
       await api("/api/admin/materials", {
@@ -682,11 +993,12 @@
           fileUrl: form.get("fileUrl") || undefined
         })
       });
-      event.currentTarget.reset();
+      formElement.reset();
       fillMaterialFormSelects();
-      initMaterialUpload(event.currentTarget);
+      initMaterialUpload(formElement);
+      syncDirectionCard(String(form.get("directionSlug") || ""), true);
       setPanelStatus("Материал добавлен", false);
-      await loadMaterials();
+      await reloadMaterialDirections(String(form.get("directionSlug") || ""));
     } catch (error) {
       setPanelStatus(error.message, true);
     }
@@ -710,7 +1022,7 @@
       });
       form.reset();
       fillUserDirectionChecks();
-      setPanelStatus("Тьютор создан", false);
+      setPanelStatus("Тьютор создан. Логин: " + data.get("email") + " Пароль: " + data.get("password"), false);
       await loadUsers();
     } catch (error) {
       setPanelStatus(error.message, true);
@@ -726,6 +1038,25 @@
       await api("/api/admin/users/" + user.id, { method: "PATCH", body: JSON.stringify({ directionSlugs }) });
       setPanelStatus("Доступ обновлён", false);
       await loadUsers();
+    } catch (error) {
+      setPanelStatus(error.message, true);
+    }
+  }
+
+  async function onSaveUserPassword(event) {
+    const card = event.currentTarget.closest("[data-user-id]");
+    const user = state.users.find((item) => item.id === card?.dataset.userId);
+    const passwordInput = card?.querySelector('input[name="password"]');
+    const password = passwordInput?.value || "";
+    if (!card || !user || password.length < 8) {
+      setPanelStatus("Пароль должен быть не короче 8 символов", true);
+      return;
+    }
+
+    try {
+      await api("/api/admin/users/" + user.id, { method: "PATCH", body: JSON.stringify({ password }) });
+      passwordInput.value = "";
+      setPanelStatus("Пароль обновлён. Логин: " + user.email + " Новый пароль: " + password, false);
     } catch (error) {
       setPanelStatus(error.message, true);
     }
@@ -783,8 +1114,17 @@
     });
   }
 
+  function initDirectionHashLoading() {
+    window.addEventListener("hashchange", () => {
+      const direction = decodeURIComponent(window.location.hash || "").replace(/^#/, "");
+      const board = boardForDirection(direction);
+      if (board?.dataset.materialsLoaded !== "true") loadDirectionMaterials(board, direction);
+    });
+  }
+
   async function bootstrap() {
     initGlobalCatalog();
+    initDirectionHashLoading();
     renderAdminPanel();
     if (state.token) {
       try {
@@ -802,6 +1142,7 @@
       state.semesters = result[1];
       state.subjects = result[2];
       refreshAdminPanel();
+      refreshDirectionCardAvailability();
     } catch (error) {
       console.warn("Directory API unavailable.", error);
     }
