@@ -67,8 +67,8 @@
 html {
   scroll-behavior: smooth;
   background:
-    linear-gradient(135deg, rgba(255, 250, 241, 0.2), rgba(217, 167, 160, 0.11) 42%, rgba(169, 180, 155, 0.1) 72%, rgba(200, 154, 108, 0.12)),
-    #c9aa8f;
+    linear-gradient(135deg, rgba(74, 49, 43, 0.76), rgba(128, 72, 64, 0.7) 38%, rgba(86, 95, 73, 0.62) 72%, rgba(148, 91, 58, 0.72)),
+    #6f4c42;
 }
 
 @media (min-width: 1180px) {
@@ -80,13 +80,13 @@ html {
 body {
   min-height: 100vh;
   padding-top: var(--site-header-height);
-  background-color: #c9aa8f;
+  background-color: #6f4c42;
   background-image:
-    linear-gradient(135deg, rgba(255, 250, 241, 0.18), rgba(217, 167, 160, 0.1) 42%, rgba(169, 180, 155, 0.09) 72%, rgba(200, 154, 108, 0.1)),
-    radial-gradient(circle at 16% 10%, rgba(255, 244, 226, 0.38), transparent 28%),
-    radial-gradient(circle at 86% 14%, rgba(255, 238, 217, 0.24), transparent 30%),
-    radial-gradient(circle at 50% 95%, rgba(147, 106, 79, 0.14), transparent 44%),
-    linear-gradient(145deg, #d8bca1 0%, #c4a187 48%, #a87e64 100%);
+    linear-gradient(135deg, rgba(54, 37, 34, 0.38), rgba(151, 75, 67, 0.24) 38%, rgba(87, 107, 77, 0.24) 72%, rgba(176, 102, 62, 0.28)),
+    radial-gradient(circle at 16% 10%, rgba(244, 178, 117, 0.28), transparent 28%),
+    radial-gradient(circle at 86% 14%, rgba(208, 104, 99, 0.24), transparent 30%),
+    radial-gradient(circle at 52% 96%, rgba(47, 39, 38, 0.52), transparent 46%),
+    linear-gradient(145deg, #91634f 0%, #7c5148 36%, #5f4844 68%, #4a3f3a 100%);
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -264,8 +264,8 @@ body::before {
   z-index: -1;
   pointer-events: none;
   background:
-    linear-gradient(90deg, rgba(82, 58, 46, 0.1), transparent 22%, transparent 78%, rgba(82, 58, 46, 0.12)),
-    linear-gradient(180deg, rgba(255, 250, 241, 0.16), transparent 36%, rgba(111, 81, 63, 0.08));
+    linear-gradient(90deg, rgba(45, 32, 30, 0.32), transparent 24%, transparent 76%, rgba(45, 32, 30, 0.36)),
+    linear-gradient(180deg, rgba(255, 210, 169, 0.12), transparent 34%, rgba(42, 34, 32, 0.22));
 }
 
 body.article-page {
@@ -3443,9 +3443,10 @@ body {
   }
 
   body {
+    background-color: #644840;
     background-image:
-      linear-gradient(145deg, rgba(255, 250, 241, 0.14), rgba(217, 167, 160, 0.1) 44%, rgba(169, 180, 155, 0.08) 76%, rgba(200, 154, 108, 0.11)),
-      linear-gradient(180deg, #d8bca1 0%, #c8a68d 52%, #af876d 100%);
+      linear-gradient(145deg, rgba(75, 49, 44, 0.42), rgba(151, 75, 67, 0.26) 44%, rgba(87, 107, 77, 0.22) 76%, rgba(176, 102, 62, 0.3)),
+      linear-gradient(180deg, #8e5f4d 0%, #764f47 52%, #59443f 100%);
   }
 
   .board-section,

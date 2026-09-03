@@ -623,7 +623,7 @@ async function main() {
 
   const materialSeeds: MaterialSeed[] = [
     {
-      title: "Начало начал",
+      title: "2025: Начало начал",
       slug: "nachalo-nachal",
       description: "Гайд на первый семестр",
       externalUrl: "/posts/2025/1/",
@@ -635,7 +635,7 @@ async function main() {
       archived: true
     },
     {
-      title: "Вода, огонь и медные трубы",
+      title: "2025: Вода, огонь и медные трубы",
       slug: "voda-ogon-i-mednye-truby",
       description: "Гайд на первую сессию",
       externalUrl: "/posts/2025/2/",
@@ -647,7 +647,7 @@ async function main() {
       archived: true
     },
     {
-      title: "О дивный новый мир!",
+      title: "2025: О дивный новый мир!",
       slug: "o-divnyy-novyy-mir",
       description: "Гайд на второй семестр",
       externalUrl: "/posts/2025/3/",
@@ -659,158 +659,226 @@ async function main() {
       archived: true
     },
     {
-      title: "Навигатор первого семестра",
-      slug: "first-semester-navigator",
-      description: "Живой гайд по первому семестру: где искать материалы и как не теряться в предметах.",
-      externalUrl: "/posts/2025/1/",
+      title: "2024: Курс молодого бойца",
+      slug: "kurs-molodogo-boytsa-2024",
+      description: "Гайд на первый семестр",
+      externalUrl: "/posts/2024/1/",
       semesterNumber: 1,
       type: MaterialType.GUIDE,
-      publishedAt: new Date("2026-08-30T00:00:00.000Z"),
+      publishedAt: new Date("2024-09-01T00:00:00.000Z"),
       sortOrder: 4,
       archived: true
     },
     {
-      title: "Мат. анализ: программа экзамена",
+      title: "2024: Боевое крещение",
+      slug: "boevoe-kreshchenie-2024",
+      description: "Гайд на первую сессию",
+      externalUrl: "/posts/2024/2/",
+      semesterNumber: 2,
+      type: MaterialType.GUIDE,
+      publishedAt: new Date("2024-12-15T00:00:00.000Z"),
+      sortOrder: 5,
+      archived: true
+    },
+    {
+      title: "2024: Суровая весна",
+      slug: "surovaya-vesna-2024",
+      description: "Гайд на второй семестр",
+      externalUrl: "/posts/2024/3/",
+      semesterNumber: 2,
+      type: MaterialType.GUIDE,
+      publishedAt: new Date("2025-02-01T00:00:00.000Z"),
+      sortOrder: 6,
+      archived: true
+    },
+    {
+      title: "2024: Огненные недра",
+      slug: "ognennye-nedra-2024",
+      description: "До связи",
+      externalUrl: "/posts/2024/4/",
+      semesterNumber: 2,
+      type: MaterialType.GUIDE,
+      publishedAt: new Date("2025-06-01T00:00:00.000Z"),
+      sortOrder: 7,
+      archived: true
+    },
+    {
+      title: "2024: Добро пожаловать в ад",
+      slug: "dobro-pozhalovat-v-ad-2024",
+      description: "Последний бастион винды",
+      externalUrl: "/posts/2024/5/",
+      semesterNumber: 3,
+      type: MaterialType.GUIDE,
+      publishedAt: new Date("2025-09-03T00:00:00.000Z"),
+      sortOrder: 8,
+      archived: true
+    },
+    {
+      title: "2024: Лучшие в аду",
+      slug: "luchshie-v-adu-2024",
+      description: "Гайд на сессию 3 семестра",
+      externalUrl: "/posts/2024/6/",
+      semesterNumber: 3,
+      type: MaterialType.GUIDE,
+      publishedAt: new Date("2025-12-18T00:00:00.000Z"),
+      sortOrder: 9,
+      archived: true
+    },
+    {
+      title: "2025: ПрограммаКоллоквиума1",
       slug: "mat-analysis-exam-program",
       description: "Отдельная полка для экзаменационной программы по математическому анализу.",
       fileUrl: "/2025/1%20семестр/Матан/ПрограммаКоллоквиума1.pdf",
       semesterNumber: 1,
       subjectSlug: "mat-analysis",
-      type: MaterialType.EXAM,
+      type: MaterialType.GUIDE,
       publishedAt: new Date("2026-08-30T00:00:00.000Z"),
-      sortOrder: 10
+      sortOrder: 10,
+      archived: true
     },
     {
-      title: "Мат. анализ: экзаменационные ответы",
+      title: "2025: экзамен ответы",
       slug: "mat-analysis-exam-answers",
       description: "Ответы и материалы для подготовки к экзамену по математическому анализу.",
       fileUrl: "/2025/1%20семестр/Матан/экзамен_ответы.pdf",
       semesterNumber: 1,
       subjectSlug: "mat-analysis",
-      type: MaterialType.EXAM,
+      type: MaterialType.GUIDE,
       publishedAt: new Date("2026-08-30T00:00:00.000Z"),
-      sortOrder: 11
+      sortOrder: 11,
+      archived: true
     },
     {
-      title: "Мат. анализ: контрольная работа 1",
+      title: "2025: кр1",
       slug: "mat-analysis-kr1",
       description: "Обычные материалы по семестру отдельно от экзаменационной подготовки.",
       fileUrl: "/2025/1%20семестр/Матан/кр1.pdf",
       semesterNumber: 1,
       subjectSlug: "mat-analysis",
-      type: MaterialType.NOTES,
+      type: MaterialType.GUIDE,
       publishedAt: new Date("2026-08-30T00:00:00.000Z"),
-      sortOrder: 12
+      sortOrder: 12,
+      archived: true
     },
     {
-      title: "Мат. анализ: образцы задач к экзамену",
+      title: "2024: Obraztsy zadach na ekz 1 sem",
       slug: "mat-analysis-exam-samples",
       description: "Задачи для тренировки перед экзаменом, отдельно от обычных семестровых конспектов.",
       fileUrl: "/2024/2/матан/Obraztsy_zadach_na_ekz_1_sem.pdf",
       semesterNumber: 2,
       subjectSlug: "mat-analysis",
-      type: MaterialType.EXAM,
+      type: MaterialType.GUIDE,
       publishedAt: new Date("2026-08-30T00:00:00.000Z"),
-      sortOrder: 13
+      sortOrder: 13,
+      archived: true
     },
     {
-      title: "Алгем: задачник Беклемишева",
+      title: "2025: БеклЗадачи",
       slug: "linear-algebra-beklemishev",
       description: "Базовый задачник по алгебре и геометрии для регулярной работы в семестре.",
       fileUrl: "/2025/1%20семестр/Алгем/БеклЗадачи.pdf",
       semesterNumber: 1,
       subjectSlug: "linear-algebra",
-      type: MaterialType.NOTES,
+      type: MaterialType.GUIDE,
       publishedAt: new Date("2026-08-30T00:00:00.000Z"),
-      sortOrder: 20
+      sortOrder: 20,
+      archived: true
     },
     {
-      title: "Алгем: вопросы к экзамену",
+      title: "2025: АЛГЕМ Вопросы экзамен",
       slug: "linear-algebra-exam-questions",
       description: "Экзаменационные вопросы по алгебре и геометрии отдельным блоком.",
       fileUrl: "/2025/1%20семестр/Алгем/АЛГЕМ_Вопросы_экзамен.pdf",
       semesterNumber: 1,
       subjectSlug: "linear-algebra",
-      type: MaterialType.EXAM,
+      type: MaterialType.GUIDE,
       publishedAt: new Date("2026-08-30T00:00:00.000Z"),
-      sortOrder: 21
+      sortOrder: 21,
+      archived: true
     },
     {
-      title: "Программирование: контрольная работа",
+      title: "2025: KR",
       slug: "programming-control-work",
       description: "Материал для практики по программированию в течение семестра.",
       fileUrl: "/2025/1%20семестр/Инфопрога/KR.pdf",
       semesterNumber: 1,
       subjectSlug: "programming",
-      type: MaterialType.NOTES,
+      type: MaterialType.GUIDE,
       publishedAt: new Date("2026-08-30T00:00:00.000Z"),
-      sortOrder: 30
+      sortOrder: 30,
+      archived: true
     },
     {
-      title: "Программирование: итоговый тест",
+      title: "2024: Itogovy test Attempt review",
       slug: "programming-final-test-review",
       description: "Разбор итогового теста и экзаменационные материалы по инфопроге.",
       fileUrl: "/2024/2/прога/Itogovy_test_Attempt_review.pdf",
       semesterNumber: 2,
       subjectSlug: "programming",
-      type: MaterialType.EXAM,
+      type: MaterialType.GUIDE,
       publishedAt: new Date("2026-08-30T00:00:00.000Z"),
-      sortOrder: 31
+      sortOrder: 31,
+      archived: true
     },
     {
-      title: "Программирование: Anki-колода",
+      title: "2024: Инфопрога Итог",
       slug: "programming-anki-deck",
       description: "Файл APKG для повторения терминов и задач.",
       fileUrl: "/2024/2/прога/Инфопрога-Итог.apkg",
       semesterNumber: 2,
       subjectSlug: "programming",
-      type: MaterialType.OTHER,
+      type: MaterialType.GUIDE,
       publishedAt: new Date("2026-08-30T00:00:00.000Z"),
-      sortOrder: 32
+      sortOrder: 32,
+      archived: true
     },
     {
-      title: "ТеорИнфа: методичка",
+      title: "2025: TI Metodichka",
       slug: "theory-of-information-methods",
       description: "Методичка по теории информации для занятий в первом семестре.",
       fileUrl: "/2025/1%20семестр/ТеорИнфа/TI_Metodichka.pdf",
       semesterNumber: 1,
       subjectSlug: "theory-of-information",
-      type: MaterialType.NOTES,
+      type: MaterialType.GUIDE,
       publishedAt: new Date("2026-08-30T00:00:00.000Z"),
-      sortOrder: 40
+      sortOrder: 40,
+      archived: true
     },
     {
-      title: "ТеорИнфа: задания к зачёту",
+      title: "2025: задания",
       slug: "theory-of-information-test-tasks",
       description: "Задания и материалы для подготовки к зачёту/экзамену.",
       fileUrl: "/2025/1%20сессия/ТеорИнфа/задания.pdf",
       semesterNumber: 1,
       subjectSlug: "theory-of-information",
-      type: MaterialType.EXAM,
+      type: MaterialType.GUIDE,
       publishedAt: new Date("2026-08-30T00:00:00.000Z"),
-      sortOrder: 41
+      sortOrder: 41,
+      archived: true
     },
     {
-      title: "История: методичка",
+      title: "2025: ИсторияРоссииМетодичка",
       slug: "history-methods",
       description: "Методические материалы по истории России.",
       fileUrl: "/2025/1%20семестр/История/ИсторияРоссииМетодичка.pdf",
       semesterNumber: 1,
       subjectSlug: "history",
-      type: MaterialType.NOTES,
+      type: MaterialType.GUIDE,
       publishedAt: new Date("2026-08-30T00:00:00.000Z"),
-      sortOrder: 50
+      sortOrder: 50,
+      archived: true
     },
     {
-      title: "История: учебник",
+      title: "2025: ИсторияРоссииУчебник",
       slug: "history-textbook",
       description: "Учебник по истории России для регулярной подготовки.",
       fileUrl: "/2025/1%20семестр/История/ИсторияРоссииУчебник.pdf",
       semesterNumber: 1,
       subjectSlug: "history",
-      type: MaterialType.NOTES,
+      type: MaterialType.GUIDE,
       publishedAt: new Date("2026-08-30T00:00:00.000Z"),
-      sortOrder: 51
+      sortOrder: 51,
+      archived: true
     },
     {
       title: "Полезные ссылки первокурсника",
@@ -823,14 +891,15 @@ async function main() {
       sortOrder: 60
     },
     {
-      title: "Мемы первой сессии",
+      title: "2025: смутно",
       slug: "first-session-memes",
       description: "Неформальные материалы и картинки, которые не относятся к конспектам или экзаменам.",
       fileUrl: "/2025/1%20сессия/memes/смутно.jpg",
       semesterNumber: 1,
-      type: MaterialType.OTHER,
+      type: MaterialType.GUIDE,
       publishedAt: new Date("2026-08-30T00:00:00.000Z"),
-      sortOrder: 70
+      sortOrder: 70,
+      archived: true
     }
   ];
 
@@ -883,6 +952,17 @@ async function main() {
       }
     });
   }
+
+  await prisma.material.updateMany({
+    where: {
+      slug: "first-semester-navigator"
+    },
+    data: {
+      status: MaterialStatus.DELETED,
+      deletedAt: new Date(),
+      archivedAt
+    }
+  });
 
   const staticRoot = path.resolve("../static");
   const fileMaterials = await prisma.material.findMany({
@@ -945,7 +1025,7 @@ async function main() {
     const yearMatch = filePath.match(new RegExp(`${path.sep}(20\\d{2})${path.sep}`));
     const yearLabel = yearMatch?.[1] ? `${yearMatch[1]}: ` : "";
     const title = `${yearLabel}${titleFromFile(filePath)}`;
-    const archived = filePath.includes(`${path.sep}2024${path.sep}`);
+    const archived = Boolean(yearMatch?.[1]);
 
     await prisma.material.upsert({
       where: { slug: autoSlugForFile(fileUrl) },
@@ -954,7 +1034,7 @@ async function main() {
         description: "Файл из материалов курса, добавлен в общий каталог автоматически.",
         fileUrl,
         externalUrl: null,
-        type: materialTypeFromPath(filePath),
+        type: MaterialType.GUIDE,
         semesterId: semester?.id,
         subjectId: subject?.id,
         directionId: pi.id,
@@ -967,7 +1047,7 @@ async function main() {
         title,
         slug: autoSlugForFile(fileUrl),
         description: "Файл из материалов курса, добавлен в общий каталог автоматически.",
-        type: materialTypeFromPath(filePath),
+        type: MaterialType.GUIDE,
         status: MaterialStatus.PUBLISHED,
         fileUrl,
         semesterId: semester?.id,
