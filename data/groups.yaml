@@ -31,6 +31,13 @@
   name: "Матобеспечение и администрирование ИС"
   full: "Математическое обеспечение и администрирование информационных систем"
   ready: false
+  tutors:
+    - first: "Мария"
+      last: "Крулева"
+      photo: "maria-kruleva"
+    - first: "Анна"
+      last: "Власова"
+      photo: "anna-vlasova"
 
 - code: "kb"
   short: "КБ"
