@@ -12,24 +12,7 @@
     <h2 class="direction-title">{{ $g.full }}</h2>
   </header>
 
-  <section class="notice-board{{ if not $first }} board-solo{{ end }}">
-    {{ if $first }}
-      <div class="board-side">
-        <nav class="board-nav" aria-label="Маршрут по сайту">
-          <p class="menu-kicker">Куда идём</p>
-          <a href="#groups"><span>01</span>Направления</a>
-          <a href="#inside"><span>02</span>Что внутри</a>
-          <a href="#archive"><span>03</span>Прошлый год</a>
-        </nav>
-
-        <a class="sgu-note" href="https://www.sgu.ru/" target="_blank" rel="noopener noreferrer">
-          <span class="sgu-note-pin" aria-hidden="true"></span>
-          <img src="/icons/sgu.jpg" alt="СГУ">
-          <span>Новый сайт СГУ</span>
-        </a>
-      </div>
-    {{ end }}
-
+  <section class="notice-board board-solo">
     <div class="board-main" data-direction="{{ $g.code }}">
       {{ if $guides }}
         <div class="posts-cards board-cards" data-materials-list data-direction="{{ $g.code }}">

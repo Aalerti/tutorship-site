@@ -839,13 +839,20 @@
   }
 
   function renderAdminPanel() {
+    const headerToggle = document.querySelector("[data-admin-nav-toggle]");
+    if (headerToggle) headerToggle.hidden = false;
+
     const panel = document.createElement("section");
     panel.className = "admin-panel";
-    panel.innerHTML = '<button class="admin-panel-toggle" type="button">Тьюторский режим</button><div class="admin-panel-body" hidden><div data-admin-panel-content></div><p class="admin-panel-status" data-admin-status></p></div>';
+    panel.innerHTML = (headerToggle ? "" : '<button class="admin-panel-toggle" type="button">Тьюторский режим</button>') + '<div class="admin-panel-body" id="admin-panel-body" hidden><div data-admin-panel-content></div><p class="admin-panel-status" data-admin-status></p></div>';
     document.body.append(panel);
     const body = panel.querySelector(".admin-panel-body");
-    const toggle = panel.querySelector(".admin-panel-toggle");
-    toggle.addEventListener("click", () => { body.hidden = !body.hidden; });
+    document.querySelectorAll(".admin-panel-toggle, [data-admin-nav-toggle]").forEach((toggle) => {
+      toggle.addEventListener("click", () => {
+        body.hidden = !body.hidden;
+        toggle.setAttribute("aria-expanded", String(!body.hidden));
+      });
+    });
     refreshAdminPanel();
   }
 
@@ -869,8 +876,9 @@
       content.querySelector(".admin-login-form").addEventListener("submit", onLogin);
       content.querySelector("[data-toggle-password]").addEventListener("click", onTogglePassword);
     }
-    const toggle = document.querySelector(".admin-panel-toggle");
-    if (toggle) toggle.textContent = state.token ? "Тьюторский режим включён" : "Тьюторский режим: войти";
+    document.querySelectorAll(".admin-panel-toggle, [data-admin-nav-toggle]").forEach((toggle) => {
+      toggle.textContent = state.token ? "Тьюторский режим включён" : "Тьюторский режим: войти";
+    });
     const directions = availableDirections();
     setPanelStatus(state.token ? "Доступ: " + (state.user?.role === "ADMIN" ? "все направления" : directions.map((d) => d.shortName).join(", ") || "нет направлений") : "", false);
   }
