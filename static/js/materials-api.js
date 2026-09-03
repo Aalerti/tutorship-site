@@ -122,6 +122,45 @@
       .find((board) => board.dataset.direction === direction);
   }
 
+  function waitForBoardLoad(board) {
+    return new Promise((resolve) => {
+      const check = () => {
+        if (board.dataset.materialsLoading !== "true") {
+          resolve();
+          return;
+        }
+        window.setTimeout(check, 40);
+      };
+      check();
+    });
+  }
+
+  function directionFromHash() {
+    return decodeURIComponent(window.location.hash || "").replace(/^#/, "");
+  }
+
+  function scrollToDirection(direction, behavior = "smooth") {
+    const target = document.getElementById(direction);
+    if (!target) return;
+
+    window.requestAnimationFrame(() => {
+      target.scrollIntoView({ behavior, block: "start" });
+    });
+  }
+
+  async function loadAndScrollDirection(direction, behavior = "smooth") {
+    const board = boardForDirection(direction);
+    if (!board) return;
+
+    if (board.dataset.materialsLoaded !== "true") {
+      await loadDirectionMaterials(board, direction);
+    }
+
+    scrollToDirection(direction, behavior);
+    window.setTimeout(() => scrollToDirection(direction, "auto"), 140);
+    window.setTimeout(() => scrollToDirection(direction, "auto"), 420);
+  }
+
   async function reloadMaterialDirections(...directions) {
     const uniqueDirections = Array.from(new Set(directions.filter(Boolean)));
     await Promise.all(uniqueDirections.map(async (direction) => {
@@ -706,7 +745,7 @@
 
   async function loadDirectionMaterials(board, direction) {
     if (!board || !direction) return;
-    if (board.dataset.materialsLoading === "true") return;
+    if (board.dataset.materialsLoading === "true") return waitForBoardLoad(board);
     board.dataset.materialsLoading = "true";
     try {
       const [data, archiveData] = await Promise.all([
@@ -735,9 +774,16 @@
 
   async function loadMaterials() {
     const boards = Array.from(document.querySelectorAll(".board-main[data-direction]"));
-    const activeHash = decodeURIComponent(window.location.hash || "").replace(/^#/, "");
+    const activeHash = directionFromHash();
     const firstBoard = boards.find((board) => board.dataset.direction === activeHash) || boards[0];
-    if (firstBoard?.dataset.direction) await loadDirectionMaterials(firstBoard, firstBoard.dataset.direction);
+    if (firstBoard?.dataset.direction) {
+      await loadDirectionMaterials(firstBoard, firstBoard.dataset.direction);
+      if (activeHash) {
+        scrollToDirection(activeHash, "auto");
+        window.setTimeout(() => scrollToDirection(activeHash, "auto"), 140);
+        window.setTimeout(() => scrollToDirection(activeHash, "auto"), 420);
+      }
+    }
 
     if (!("IntersectionObserver" in window)) {
       await Promise.all(boards
@@ -1109,16 +1155,27 @@
         .find((item) => item.dataset.direction === direction);
       if (!board) return;
 
-      board.scrollIntoView({ behavior: "smooth", block: "start" });
-      loadDirectionMaterials(board, direction);
+      loadAndScrollDirection(direction);
     });
   }
 
   function initDirectionHashLoading() {
+    document.querySelectorAll('a[href^="#"]').forEach((link) => {
+      link.addEventListener("click", (event) => {
+        const direction = decodeURIComponent(link.getAttribute("href") || "").replace(/^#/, "");
+        if (!boardForDirection(direction)) return;
+
+        event.preventDefault();
+        if (directionFromHash() !== direction) {
+          history.pushState(null, "", "#" + encodeURIComponent(direction));
+        }
+        loadAndScrollDirection(direction);
+      });
+    });
+
     window.addEventListener("hashchange", () => {
-      const direction = decodeURIComponent(window.location.hash || "").replace(/^#/, "");
-      const board = boardForDirection(direction);
-      if (board?.dataset.materialsLoaded !== "true") loadDirectionMaterials(board, direction);
+      const direction = directionFromHash();
+      loadAndScrollDirection(direction);
     });
   }
 
