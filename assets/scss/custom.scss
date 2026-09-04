@@ -4369,6 +4369,20 @@ body {
   color: #fff2df;
 }
 
+@media (max-width: 1120px) {
+  :root[data-scheme="dark"] .site-header-menu .site-header-link {
+    border-color: rgba(246, 225, 202, 0.12);
+    background: rgba(244, 227, 207, 0.08);
+    color: var(--tutorship-ink);
+  }
+
+  :root[data-scheme="dark"] .site-header-menu .site-header-link:hover,
+  :root[data-scheme="dark"] .site-header-menu .site-header-link:focus-visible {
+    background: rgba(215, 160, 112, 0.18);
+    color: #fff2df;
+  }
+}
+
 :root[data-scheme="dark"] .notice-board,
 :root[data-scheme="dark"] .post-card-tutors.featured-tutors {
   border-color: rgba(246, 225, 202, 0.13);
