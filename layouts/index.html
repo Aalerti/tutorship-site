@@ -1,62 +1,8 @@
+{{ define "body-class" }}spa-page{{ end }}
+
 {{ define "main" }}
-<div class="page-paper-backdrop" aria-hidden="true">
-  <span class="bg-paper bg-folder bg-paper-01"></span>
-  <span class="bg-paper bg-sheet bg-paper-02"></span>
-  <span class="bg-paper bg-stack bg-paper-03"></span>
-  <span class="bg-paper bg-folder bg-paper-04"></span>
-  <span class="bg-paper bg-sheet bg-paper-05"></span>
-  <span class="bg-paper bg-clip bg-paper-06"></span>
-  <span class="bg-paper bg-stack bg-paper-07"></span>
-  <span class="bg-paper bg-tag bg-paper-08"></span>
-  <span class="bg-paper bg-clip bg-paper-09"></span>
-  <span class="bg-paper bg-sheet bg-paper-10"></span>
-  <span class="bg-paper bg-stack bg-paper-11"></span>
-  <span class="bg-paper bg-folder bg-paper-12"></span>
-  <span class="bg-paper bg-sheet bg-paper-13"></span>
-  <span class="bg-paper bg-folder bg-paper-14"></span>
-  <span class="bg-paper bg-envelope bg-paper-15"></span>
-  <span class="bg-paper bg-tag bg-paper-16"></span>
-  <span class="bg-paper bg-stack bg-paper-17"></span>
-  <span class="bg-paper bg-clip bg-paper-18"></span>
-  <span class="bg-paper bg-sheet bg-paper-19"></span>
-  <span class="bg-paper bg-stack bg-paper-20"></span>
-  <span class="bg-paper bg-folder bg-paper-21"></span>
-  <span class="bg-paper bg-sheet bg-paper-22"></span>
-  <span class="bg-paper bg-stack bg-paper-23"></span>
-  <span class="bg-paper bg-folder bg-paper-24"></span>
-  <span class="bg-paper bg-sheet bg-paper-25"></span>
-  <span class="bg-paper bg-stack bg-paper-26"></span>
-  <span class="bg-paper bg-clip bg-paper-27"></span>
-  <span class="bg-paper bg-tag bg-paper-28"></span>
-  <span class="bg-paper bg-stack bg-paper-29"></span>
-  <span class="bg-paper bg-folder bg-paper-30"></span>
-  <span class="bg-paper bg-sheet bg-paper-31"></span>
-  <span class="bg-paper bg-stack bg-paper-32"></span>
-  <span class="bg-paper bg-folder bg-paper-33"></span>
-  <span class="bg-paper bg-sheet bg-paper-34"></span>
-  <span class="bg-paper bg-stack bg-paper-35"></span>
-  <span class="bg-paper bg-tag bg-paper-36"></span>
-  <span class="bg-paper bg-sheet bg-paper-37"></span>
-  <span class="bg-paper bg-stack bg-paper-38"></span>
-  <span class="bg-paper bg-clip bg-paper-39"></span>
-  <span class="bg-paper bg-envelope bg-paper-40"></span>
-  <span class="bg-paper bg-stack bg-paper-41"></span>
-  <span class="bg-paper bg-clip bg-paper-42"></span>
-  <span class="bg-paper bg-sheet bg-paper-43"></span>
-  <span class="bg-paper bg-tag bg-paper-44"></span>
-  <span class="bg-paper bg-envelope bg-paper-45"></span>
-  <span class="bg-paper bg-sheet bg-paper-46"></span>
-  <span class="bg-paper bg-stack bg-paper-47"></span>
-  <span class="bg-paper bg-tag bg-paper-48"></span>
-  <span class="bg-paper bg-envelope bg-paper-49"></span>
-  <span class="bg-paper bg-folder bg-paper-50"></span>
-  <span class="bg-paper bg-sheet bg-paper-51"></span>
-  <span class="bg-paper bg-tag bg-paper-52"></span>
-  <span class="bg-paper bg-envelope bg-paper-53"></span>
-  <span class="bg-paper bg-stack bg-paper-54"></span>
-  <span class="bg-paper bg-clip bg-paper-55"></span>
-  <span class="bg-paper bg-folder bg-paper-56"></span>
-</div>
+<div class="tutorship-spa" data-spa-root>
+<div class="spa-view spa-view-home" data-spa-view data-spa-route="/" data-spa-title="Курс молодого КНиИТовца">
 <section class="hero board-hero">
   <div class="hero-inner">
     <p class="hero-kicker">Тьюторская доска объявлений</p>
@@ -64,7 +10,6 @@
     <p class="site-tagline">Один общий курс для ПИ, ФИИТ, МОАИС, САУ, КБ и ИВТ: гайды по семестрам, сессии, материалам и учебным странностям.</p>
   </div>
 </section>
-
 
 {{ partial "group-picker.html" . }}
 
@@ -93,9 +38,9 @@
     <button type="submit">Найти</button>
   </form>
 </section>
+</div>
 
-
-
+<div class="spa-view spa-view-inside" data-spa-view data-spa-route="/inside" data-spa-title="Что внутри" hidden>
 <section class="intro-zone" aria-label="Что внутри курса">
 <div class="content-wrapper">
   <section class="about" id="inside">
@@ -140,12 +85,15 @@
 </section>
 
 </section>
+</div>
 
 
 {{ range $i, $g := .Site.Data.groups }}
+<div class="spa-view spa-view-direction" data-spa-view data-spa-route="/directions/{{ $g.code }}" data-spa-direction="{{ $g.code }}" data-spa-title="{{ $g.short }} — материалы" hidden>
   {{ partial "direction-board.html" (dict "group" $g "ctx" $ "first" (eq $i 0)) }}
-
+</div>
 {{ end }}
+</div>
 
 {{ with .Site.Params.apiBase }}
 <script>

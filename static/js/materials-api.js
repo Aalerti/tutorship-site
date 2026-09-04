@@ -139,12 +139,46 @@
     return decodeURIComponent(window.location.hash || "").replace(/^#/, "");
   }
 
+  function directionFromPath(pathname = window.location.pathname) {
+    const match = pathname.match(/^\/directions\/([^/]+)\/?$/);
+    return match ? decodeURIComponent(match[1]) : "";
+  }
+
+  function activeDirection() {
+    return directionFromPath() || directionFromHash();
+  }
+
+  function directionPath(direction) {
+    return "/directions/" + encodeURIComponent(direction);
+  }
+
+  function openDirectionRoute(direction, replace = false) {
+    if (!direction) return;
+    const path = directionPath(direction);
+    if (window.TutorshipSPA) {
+      window.TutorshipSPA.navigate(path, { replace, scroll: false });
+      return;
+    }
+    const currentPath = window.location.pathname.replace(/\/+$/, "") || "/";
+    if (currentPath !== path || window.location.hash) {
+      history[replace ? "replaceState" : "pushState"](null, "", path);
+    }
+  }
+
   function scrollToDirection(direction, behavior = "smooth") {
     const target = document.getElementById(direction);
     if (!target) return;
 
+    if (window.TutorshipSPA && window.TutorshipSPA.currentPath() !== directionPath(direction)) {
+      window.TutorshipSPA.navigate(directionPath(direction), { scroll: false });
+    }
+
     window.requestAnimationFrame(() => {
-      target.scrollIntoView({ behavior, block: "start" });
+      if (window.TutorshipSPA) {
+        window.scrollTo({ top: 0, behavior });
+      } else {
+        target.scrollIntoView({ behavior, block: "start" });
+      }
     });
   }
 
@@ -198,7 +232,8 @@
       card.prepend(link);
     }
     const label = card.getAttribute("title") || card.querySelector(".group-short")?.textContent?.trim() || direction;
-    link.href = "#" + direction;
+    link.href = directionPath(direction);
+    link.dataset.spaLink = "";
     link.setAttribute("aria-label", label + " — перейти к доске");
 
     const stamp = card.querySelector(".group-stamp");
@@ -774,14 +809,14 @@
 
   async function loadMaterials() {
     const boards = Array.from(document.querySelectorAll(".board-main[data-direction]"));
-    const activeHash = directionFromHash();
-    const firstBoard = boards.find((board) => board.dataset.direction === activeHash) || boards[0];
+    const activeSlug = activeDirection();
+    const firstBoard = boards.find((board) => board.dataset.direction === activeSlug) || boards[0];
     if (firstBoard?.dataset.direction) {
       await loadDirectionMaterials(firstBoard, firstBoard.dataset.direction);
-      if (activeHash) {
-        scrollToDirection(activeHash, "auto");
-        window.setTimeout(() => scrollToDirection(activeHash, "auto"), 140);
-        window.setTimeout(() => scrollToDirection(activeHash, "auto"), 420);
+      if (activeSlug) {
+        scrollToDirection(activeSlug, "auto");
+        window.setTimeout(() => scrollToDirection(activeSlug, "auto"), 140);
+        window.setTimeout(() => scrollToDirection(activeSlug, "auto"), 420);
       }
     }
 
@@ -1155,20 +1190,22 @@
         .find((item) => item.dataset.direction === direction);
       if (!board) return;
 
+      openDirectionRoute(direction);
       loadAndScrollDirection(direction);
     });
   }
 
   function initDirectionHashLoading() {
-    document.querySelectorAll('a[href^="#"]').forEach((link) => {
+    document.querySelectorAll('a[href^="#"], a[href^="/directions/"]').forEach((link) => {
       link.addEventListener("click", (event) => {
-        const direction = decodeURIComponent(link.getAttribute("href") || "").replace(/^#/, "");
+        const href = link.getAttribute("href") || "";
+        const direction = href.startsWith("#")
+          ? decodeURIComponent(href).replace(/^#/, "")
+          : directionFromPath(new URL(href, window.location.origin).pathname);
         if (!boardForDirection(direction)) return;
 
         event.preventDefault();
-        if (directionFromHash() !== direction) {
-          history.pushState(null, "", "#" + encodeURIComponent(direction));
-        }
+        openDirectionRoute(direction);
         loadAndScrollDirection(direction);
       });
     });
@@ -1176,6 +1213,17 @@
     window.addEventListener("hashchange", () => {
       const direction = directionFromHash();
       loadAndScrollDirection(direction);
+    });
+
+    window.addEventListener("popstate", () => {
+      if (window.TutorshipSPA) return;
+      const direction = directionFromPath();
+      if (direction) loadAndScrollDirection(direction, "auto");
+    });
+
+    window.addEventListener("tutorship:spa-route", (event) => {
+      const direction = event.detail?.direction || directionFromPath(event.detail?.path || "");
+      if (direction) loadAndScrollDirection(direction, "auto");
     });
   }
 

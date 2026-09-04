@@ -78,6 +78,7 @@ html {
 }
 
 body {
+  position: relative;
   min-height: 100vh;
   padding-top: var(--site-header-height);
   background-color: #bd9679;
@@ -253,7 +254,41 @@ body {
 
 main.main {
   position: relative;
+  z-index: 1;
   overflow: visible;
+}
+
+.site-footer {
+  position: relative;
+  z-index: 1;
+}
+
+.tutorship-spa {
+  position: relative;
+  min-height: calc(100vh - var(--site-header-height));
+  isolation: isolate;
+}
+
+.spa-view {
+  position: relative;
+  z-index: 2;
+}
+
+.spa-view[hidden] {
+  display: none !important;
+}
+
+.spa-view-home {
+  min-height: calc(100vh - var(--site-header-height) - 5rem);
+}
+
+.spa-view-inside,
+.spa-view-direction {
+  padding: 3rem 0 4.5rem;
+}
+
+.spa-view-direction .direction {
+  margin-bottom: 0;
 }
 
 
@@ -303,6 +338,10 @@ body.article-page footer {
   body.article-page::after {
     display: none;
   }
+}
+
+body.article-page::after {
+  display: none;
 }
 
 

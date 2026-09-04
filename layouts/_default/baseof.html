@@ -5,6 +5,7 @@
         {{- block "head" . -}}{{ end }}
     </head>
     <body class="{{ block `body-class` . }}{{ end }}">
+        {{ partial "page-paper-backdrop.html" . }}
 
         {{ partial "site-header.html" . }}
         {{- partial "head/colorScheme" . -}}
