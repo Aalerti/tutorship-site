@@ -17,6 +17,27 @@ const booleanFromQuery = z.preprocess((value) => {
   return value;
 }, z.boolean());
 
+const emptyStringToUndefined = (value: unknown) => {
+  if (typeof value === "string" && value.trim() === "") {
+    return undefined;
+  }
+
+  return value;
+};
+
+const optionalTrimmedString = (schema: z.ZodString) => z.preprocess(
+  emptyStringToUndefined,
+  schema.optional()
+);
+
+const optionalPositiveInt = z.preprocess((value) => {
+  if (typeof value === "string" && value.trim() === "") {
+    return undefined;
+  }
+
+  return value;
+}, z.coerce.number().int().positive().optional());
+
 export const materialListQuerySchema = z.object({
   direction: z.string().optional(),
   semester: z.coerce.number().int().positive().optional(),
@@ -31,17 +52,17 @@ export const materialListQuerySchema = z.object({
 
 export const materialCreateSchema = z.object({
   title: z.string().trim().min(2).max(160),
-  slug: z.string().trim().min(2).max(100).regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/).optional(),
-  description: z.string().trim().max(500).optional(),
-  content: z.string().optional(),
+  slug: optionalTrimmedString(z.string().trim().min(2).max(100).regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/)),
+  description: optionalTrimmedString(z.string().trim().max(500)),
+  content: optionalTrimmedString(z.string()),
   type: z.nativeEnum(MaterialType).default(MaterialType.GUIDE),
   status: z.nativeEnum(MaterialStatus).default(MaterialStatus.PUBLISHED),
   directionSlug: z.string().trim().min(1),
-  semesterNumber: z.number().int().positive().optional(),
-  subjectSlug: z.string().trim().min(1).optional(),
-  coverImageUrl: z.string().url().optional(),
-  externalUrl: z.string().url().optional(),
-  fileUrl: z.string().optional(),
+  semesterNumber: optionalPositiveInt,
+  subjectSlug: optionalTrimmedString(z.string().trim().min(1)),
+  coverImageUrl: optionalTrimmedString(z.string().trim().url()),
+  externalUrl: optionalTrimmedString(z.string().trim().url()),
+  fileUrl: optionalTrimmedString(z.string().trim()),
   isPinned: z.boolean().default(false),
   sortOrder: z.number().int().default(0),
   attachments: z.array(z.object({

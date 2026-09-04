@@ -263,7 +263,13 @@
       } catch (_error) {
         data = {};
       }
-      throw new Error(data.message || text || "Ошибка backend: " + response.status);
+      const issues = Array.isArray(data.issues)
+        ? data.issues.map((issue) => {
+            const field = Array.isArray(issue.path) && issue.path.length ? issue.path.join(".") : "поле";
+            return field + ": " + (issue.message || "некорректное значение");
+          }).join("; ")
+        : "";
+      throw new Error([data.message || text || "Ошибка backend: " + response.status, issues].filter(Boolean).join(". "));
     }
     return response.json();
   }
@@ -1060,26 +1066,28 @@
     const formElement = event.currentTarget;
     const form = new FormData(formElement);
     const semester = form.get("semesterNumber");
+    const semesterNumber = semester && Number.isFinite(Number(semester)) ? Number(semester) : undefined;
+    const payload = {
+      title: String(form.get("title") || "").trim(),
+      description: String(form.get("description") || "").trim() || undefined,
+      directionSlug: String(form.get("directionSlug") || "").trim(),
+      semesterNumber,
+      subjectSlug: String(form.get("subjectSlug") || "").trim() || undefined,
+      type: String(form.get("type") || "GUIDE"),
+      externalUrl: String(form.get("externalUrl") || "").trim() || undefined,
+      fileUrl: String(form.get("fileUrl") || "").trim() || undefined
+    };
     try {
       await api("/api/admin/materials", {
         method: "POST",
-        body: JSON.stringify({
-          title: form.get("title"),
-          description: form.get("description") || undefined,
-          directionSlug: form.get("directionSlug"),
-          semesterNumber: semester ? Number(semester) : undefined,
-          subjectSlug: form.get("subjectSlug") || undefined,
-          type: form.get("type"),
-          externalUrl: form.get("externalUrl") || undefined,
-          fileUrl: form.get("fileUrl") || undefined
-        })
+        body: JSON.stringify(payload)
       });
       formElement.reset();
       fillMaterialFormSelects();
       initMaterialUpload(formElement);
-      syncDirectionCard(String(form.get("directionSlug") || ""), true);
+      syncDirectionCard(payload.directionSlug, true);
       setPanelStatus("Материал добавлен", false);
-      await reloadMaterialDirections(String(form.get("directionSlug") || ""));
+      await reloadMaterialDirections(payload.directionSlug);
     } catch (error) {
       setPanelStatus(error.message, true);
     }
