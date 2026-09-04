@@ -984,7 +984,6 @@
     const subjectSelect = form.querySelector('select[name="subjectSlug"]');
     const directions = availableDirections();
     directionSelect.innerHTML = directions.map((direction) => '<option value="' + escapeHtml(direction.slug) + '">' + escapeHtml(direction.shortName) + '</option>').join("");
-    directionSelect.disabled = state.user?.role !== "ADMIN" && directions.length <= 1;
     semesterSelect.innerHTML = '<option value="">Без семестра</option>' + state.semesters.map((semester) => '<option value="' + semester.number + '">' + escapeHtml(semester.title) + '</option>').join("");
     const fillSubjects = () => {
       const subjects = subjectsForDirection(directionSelect.value, semesterSelect.value);
@@ -1065,12 +1064,13 @@
     event.preventDefault();
     const formElement = event.currentTarget;
     const form = new FormData(formElement);
+    const directionSelect = formElement.querySelector('select[name="directionSlug"]');
     const semester = form.get("semesterNumber");
     const semesterNumber = semester && Number.isFinite(Number(semester)) ? Number(semester) : undefined;
     const payload = {
       title: String(form.get("title") || "").trim(),
       description: String(form.get("description") || "").trim() || undefined,
-      directionSlug: String(form.get("directionSlug") || "").trim(),
+      directionSlug: String(form.get("directionSlug") || directionSelect?.value || "").trim(),
       semesterNumber,
       subjectSlug: String(form.get("subjectSlug") || "").trim() || undefined,
       type: String(form.get("type") || "GUIDE"),
