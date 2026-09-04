@@ -160,6 +160,55 @@ body {
   justify-content: flex-end;
   gap: 0.35rem;
   min-width: 0;
+  margin-left: auto;
+}
+
+.site-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex: 0 0 auto;
+}
+
+.theme-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  flex: 0 0 42px;
+  border: 1px solid rgba(111, 81, 63, 0.18);
+  border-radius: 8px;
+  background: rgba(255, 250, 241, 0.86);
+  color: var(--tutorship-cocoa);
+  padding: 0;
+  cursor: pointer;
+  transition: background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease, transform 0.18s ease;
+}
+
+.theme-toggle-btn:hover,
+.theme-toggle-btn:focus-visible {
+  border-color: rgba(111, 81, 63, 0.22);
+  background: rgba(246, 234, 217, 0.9);
+  color: var(--tutorship-ink);
+  transform: translateY(-1px);
+}
+
+.theme-toggle-btn .theme-icon {
+  width: 20px;
+  height: 20px;
+}
+
+.theme-toggle-btn .theme-icon-dark {
+  display: none;
+}
+
+[data-scheme="dark"] .theme-toggle-btn .theme-icon-light {
+  display: none;
+}
+
+[data-scheme="dark"] .theme-toggle-btn .theme-icon-dark {
+  display: block;
 }
 
 .site-header-link {
@@ -4228,9 +4277,14 @@ body {
 }
 
 :root[data-scheme="dark"] .site-header-burger,
+:root[data-scheme="dark"] .theme-toggle-btn,
 :root[data-scheme="dark"] .site-header-menu {
   border-color: rgba(246, 225, 202, 0.12);
   background: rgba(22, 16, 18, 0.96);
+}
+
+:root[data-scheme="dark"] .theme-toggle-btn {
+  color: var(--tutorship-primary);
 }
 
 :root[data-scheme="dark"] .site-header-burger span {
@@ -4300,8 +4354,7 @@ body {
 :root[data-scheme="dark"] .quick-catalog button,
 :root[data-scheme="dark"] .admin-panel button,
 :root[data-scheme="dark"] .admin-panel-toggle,
-:root[data-scheme="dark"] .material-actions button,
-:root[data-scheme="dark"] .site-footer .theme-toggle-btn {
+:root[data-scheme="dark"] .material-actions button {
   border-color: rgba(246, 225, 202, 0.14);
   background: rgba(215, 160, 112, 0.18);
   color: #f5d6b8;
@@ -4311,7 +4364,7 @@ body {
 :root[data-scheme="dark"] .quick-catalog button:hover,
 :root[data-scheme="dark"] .admin-panel button:hover,
 :root[data-scheme="dark"] .material-actions button:hover,
-:root[data-scheme="dark"] .site-footer .theme-toggle-btn:hover {
+:root[data-scheme="dark"] .theme-toggle-btn:hover {
   background: rgba(215, 160, 112, 0.28);
   color: #fff2df;
 }
