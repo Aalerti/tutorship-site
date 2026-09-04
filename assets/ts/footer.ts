@@ -3,7 +3,7 @@
 
 // Сначала восстановим тему из localStorage или системных настроек
 function initTheme() {
-  const saved = localStorage.getItem('theme');
+  const saved = localStorage.getItem('theme') || localStorage.getItem('StackColorScheme');
   if (saved === 'dark' || saved === 'light') {
     document.documentElement.setAttribute('data-scheme', saved);
   } else {
@@ -23,6 +23,7 @@ function setupThemeToggle() {
     const next = current === 'dark' ? 'light' : 'dark';
     document.documentElement.setAttribute('data-scheme', next);
     localStorage.setItem('theme', next);
+    localStorage.setItem('StackColorScheme', next);
   });
 }
 
